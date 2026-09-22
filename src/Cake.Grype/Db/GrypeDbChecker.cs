@@ -37,6 +37,8 @@ namespace Cake.Grype.Db
         /// <inheritdoc />
         protected override bool AcceptsExitCode(int exitCode, string standardOutput)
         {
+            // standardOutput is not inspected here: RunAndReadJson always parses stdout as JSON after the exit-code
+            // check accepts it, so an update-available exit code with unparsable stdout still throws there.
             return exitCode == UpdateAvailableExitCode;
         }
     }

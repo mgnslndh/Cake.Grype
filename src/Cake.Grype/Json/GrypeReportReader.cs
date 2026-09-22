@@ -10,17 +10,19 @@ namespace Cake.Grype.Json
     /// Reads Grype JSON reports (<c>-o json</c>).
     /// </summary>
     /// <remarks>
-    /// The report is deserialized from a stream; fields the model does not map (for example <c>matchDetails</c>,
-    /// artifact <c>locations</c> or <c>descriptor.configuration</c>) are skipped, which keeps memory low for large reports.
+    /// The report is deserialized from a stream using System.Text.Json's built-in (streaming) collection converters,
+    /// so large arrays such as <c>matches</c> and <c>ignoredMatches</c> are read incrementally rather than buffered
+    /// whole; fields the model does not map (for example <c>matchDetails</c>, artifact <c>locations</c> or
+    /// <c>descriptor.configuration</c>) are skipped, which keeps memory low for large reports.
     /// </remarks>
     public sealed class GrypeReportReader
     {
         private static readonly JsonSerializerOptions Options = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
+            TypeInfoResolver = GrypeJsonTypeInfoResolver.Create(),
             Converters =
             {
-                new NullAsEmptyListConverterFactory(),
                 new GrypeSeverityConverter(),
                 new GrypeFixStateConverter(),
             },

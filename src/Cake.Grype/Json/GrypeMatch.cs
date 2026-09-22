@@ -46,7 +46,12 @@ namespace Cake.Grype.Json
         [JsonIgnore]
         public double? MaxEpssPercentile => Records.SelectMany(record => record.Epss).Select(epss => (double?)epss.Percentile).Max();
 
-        /// <summary>Gets the highest CVSS base score of any record, or <c>null</c> if none has CVSS data.</summary>
+        /// <summary>
+        /// Gets the highest CVSS base score of any record, or <c>null</c> if none has CVSS data. This is the maximum
+        /// across all CVSS versions present: a record's <see cref="GrypeVulnerabilityMetadata.Cvss"/> can mix v2 and
+        /// v3.x entries (see <see cref="GrypeCvss.Version"/>), and scores are not comparable across versions, so
+        /// treat this as "the worst reported score", not a score on a single consistent scale.
+        /// </summary>
         [JsonIgnore]
         public double? MaxCvssBaseScore => Records.SelectMany(record => record.Cvss).Select(cvss => cvss.BaseScore).Max();
 

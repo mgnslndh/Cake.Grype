@@ -1,47 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Cake.Grype.Json
 {
-    /// <summary>
-    /// Reads JSON <c>null</c> as an empty list for every <see cref="IReadOnlyList{T}"/> property.
-    /// </summary>
-    internal sealed class NullAsEmptyListConverterFactory : JsonConverterFactory
-    {
-        public override bool CanConvert(Type typeToConvert)
-        {
-            return typeToConvert.IsGenericType && typeToConvert.GetGenericTypeDefinition() == typeof(IReadOnlyList<>);
-        }
-
-        public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
-        {
-            var elementType = typeToConvert.GetGenericArguments()[0];
-            return (JsonConverter)Activator.CreateInstance(typeof(Converter<>).MakeGenericType(elementType));
-        }
-
-        private sealed class Converter<T> : JsonConverter<IReadOnlyList<T>>
-        {
-            public override bool HandleNull => true;
-
-            public override IReadOnlyList<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-                if (reader.TokenType == JsonTokenType.Null)
-                {
-                    return Array.Empty<T>();
-                }
-
-                return (IReadOnlyList<T>)JsonSerializer.Deserialize<List<T>>(ref reader, options) ?? Array.Empty<T>();
-            }
-
-            public override void Write(Utf8JsonWriter writer, IReadOnlyList<T> value, JsonSerializerOptions options)
-            {
-                JsonSerializer.Serialize(writer, value, options);
-            }
-        }
-    }
-
     /// <summary>
     /// Reads severities the way Grype's <c>ParseSeverity</c> does: case-insensitive names, anything else is Unknown.
     /// </summary>

@@ -6,7 +6,7 @@ namespace Cake.Grype.Scan
     /// Fix states whose matches Grype ignores (<c>--ignore-states</c>).
     /// </summary>
     [Flags]
-    public enum GrypeFixStates
+    public enum GrypeIgnoreStates
     {
         /// <summary>No fix states are ignored.</summary>
         None = 0,

@@ -84,7 +84,7 @@ src/Cake.Grype/
   GrypeSource.cs
   GrypeSeverity.cs
   GrypeVersion.cs, GrypeVersionReader.cs, GrypeVersionSettings.cs
-  Scan/   GrypeScanner, GrypeScanSettings, GrypeOutput, GrypeOutputFormat, GrypeSortBy, GrypeScope, GrypeFixStates
+  Scan/   GrypeScanner, GrypeScanSettings, GrypeOutput, GrypeOutputFormat, GrypeSortBy, GrypeScope, GrypeIgnoreStates
   Db/     GrypeDbUpdater, GrypeDbStatusReader, GrypeDbChecker, GrypeDbImporter, GrypeDbDeleter,
           their settings classes, GrypeDbStatus, GrypeDbCheckResult
   Json/   GrypeReport model, GrypeReportReader
@@ -112,17 +112,17 @@ tests/Cake.Grype.Tests/               xUnit v3 (MTP) + Cake.Testing
 |---|---|---|
 | `Outputs` | `ICollection<GrypeOutput>` | `-o <format>[=<path>]`, repeatable |
 | `OutputFile` | `FilePath` | `--file` |
-| `FailOn` | `GrypeSeverity?` | `-f` (`negligible|low|medium|high|critical`; `Unknown` is rejected with `ArgumentException`) |
+| `FailOn` | `GrypeSeverity?` | `-f` (`negligible|low|medium|high|critical`; `Unknown`, or any other undefined value, is rejected with `ArgumentException`) |
 | `Template` | `FilePath` | `-t` |
-| `SortBy` | `GrypeSortBy?` (`Package`, `Severity`, `Epss`, `Risk`, `Kev`, `Vulnerability`) | `--sort-by` |
+| `SortBy` | `GrypeSortBy?` (`Package`, `Severity`, `Epss`, `Risk`, `Kev`, `Vulnerability`; an undefined value is rejected with `ArgumentException`) | `--sort-by` |
 | `OnlyFixed` | `bool` | `--only-fixed` |
 | `OnlyNotFixed` | `bool` | `--only-notfixed` |
-| `IgnoreStates` | `GrypeFixStates` (flags: `Fixed`, `NotFixed`, `Unknown`, `WontFix`) | `--ignore-states a,b` |
+| `IgnoreStates` | `GrypeIgnoreStates` (flags: `Fixed`, `NotFixed`, `Unknown`, `WontFix`) | `--ignore-states a,b` |
 | `ByCve` | `bool` | `--by-cve` |
 | `AddCpesIfNone` | `bool` | `--add-cpes-if-none` |
 | `Distro` | `string` | `--distro` |
 | `Platform` | `string` | `--platform` |
-| `Scope` | `GrypeScope?` (`Squashed`, `AllLayers`, `DeepSquashed`) | `-s` |
+| `Scope` | `GrypeScope?` (`Squashed`, `AllLayers`, `DeepSquashed`; an undefined value is rejected with `ArgumentException`) | `-s` |
 | `Exclude` | `ICollection<string>` | `--exclude`, repeatable |
 | `From` | `ICollection<string>` | `--from`, repeatable |
 | `Name` | `string` | `--name` |
@@ -152,6 +152,7 @@ Relative paths are made absolute against the Cake working directory (`settings.W
 
 **Runner behaviour (`GrypeScanner`)**
 
+- Validates `FailOn`, `SortBy` and `Scope` before touching any file: an undefined enum value (for example `(GrypeSeverity)9`, not one of the named members) throws `ArgumentException` with `paramName` `settings`, in the same place as the existing `FailOn == Unknown` check.
 - Creates missing parent directories of `OutputFile` and of every `GrypeOutput.File`.
 - Deletes existing output files before running, so a failed run cannot leave a stale report that looks current.
 - `FailOn` → exit `2` after outputs are written → `CakeException`. With CI artifacts configured to upload on failure the file is still available. To inspect findings instead of failing: `HandleExitCode = c => c is 0 or 2` (documented).
@@ -226,10 +227,11 @@ GrypeVulnerability : GrypeVulnerabilityMetadata
 **Reader (`GrypeReportReader`)**
 
 - `System.Text.Json`, deserialising from a `FileStream` (no full-file string). Case-insensitive property names; unknown properties ignored; UTF-8 BOM tolerated.
+- Every `IReadOnlyList<T>` model property is read with System.Text.Json's built-in (streaming) collection converters, not a custom `JsonConverter`: a custom converter cannot suspend mid-value, so registering one for `IReadOnlyList<T>` would force System.Text.Json to buffer the whole raw array (for example `matches` or `ignoredMatches`) before it could run, defeating streaming on large reports. Missing arrays already deserialise as empty lists via each property's `= Array.Empty<T>()` initializer. An explicit JSON `null` for such a property is normalised to an empty array of the element type by a `DefaultJsonTypeInfoResolver` whose `Modifiers` wrap that property's `Set` — this runs after the built-in converter has produced the value, so it does not reintroduce buffering.
 - Not mapped (reduces memory on large reports; addable later without breaking changes): `matchDetails`, artifact `locations`/`upstreams`, `descriptor.configuration`, `descriptor.db`.
-- `GrypeSeverity` and `GrypeFixState` parse case-insensitively; unrecognised values map to `Unknown` instead of throwing, so newer Grype versions don't break existing scripts.
+- `GrypeSeverity` and `GrypeFixState` parse case-insensitively via small scalar `JsonConverter`s; unrecognised values map to `Unknown` instead of throwing, so newer Grype versions don't break existing scripts.
 - `GrypeSeverity` is ordered `Unknown < Negligible < Low < Medium < High < Critical`, so `>=` comparisons work.
-- **`Unknown` means "not yet assessed", not "low".** Reserved or unanalysed CVEs have `Severity == Unknown`, `Risk == 0` and no EPSS/KEV/CVSS, so severity, risk and EPSS gates skip them. This is deliberate (they carry no signal yet); a gate that should block on them must check `m.Severity == GrypeSeverity.Unknown` explicitly. Documented in the README next to the gating example. Missing arrays (`epss`, `knownExploited`, `cwes`, `urls`) deserialise as empty lists, never null; missing `description` is null.
+- **`Unknown` means "not yet assessed", not "low".** Reserved or unanalysed CVEs have `Severity == Unknown`, `Risk == 0` and no EPSS/KEV/CVSS, so severity, risk and EPSS gates skip them. This is deliberate (they carry no signal yet); a gate that should block on them must check `m.Severity == GrypeSeverity.Unknown` explicitly. Documented in the README next to the gating example. Missing or `null` arrays (`epss`, `knownExploited`, `cwes`, `urls`) deserialise as empty lists, never null; missing `description` is null.
 
 **Alias** (`GrypeAliases.ReadJson.cs`): `GrypeReport GrypeReadJson(FilePath)`. Relative paths resolve against the Cake working directory; a missing file throws `FileNotFoundException`.
 

@@ -49,7 +49,7 @@ namespace Cake.Grype.Scan
         /// <summary>
         /// Gets or sets the fix states whose matches are ignored (<c>--ignore-states</c>).
         /// </summary>
-        public GrypeFixStates IgnoreStates { get; set; }
+        public GrypeIgnoreStates IgnoreStates { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether results are oriented by CVE instead of the original vulnerability id

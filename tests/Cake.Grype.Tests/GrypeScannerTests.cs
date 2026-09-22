@@ -122,6 +122,22 @@ public sealed class GrypeScannerTests
         Assert.Equal("--file \"/Working/out/report.txt\" " + Source, Args(s => s.OutputFile = "out/report.txt"));
     }
 
+    [Fact]
+    public void Should_Quote_An_Output_File_Path_With_A_Space()
+    {
+        Assert.Equal(
+            "-o \"json=/Working/my out/grype.json\" " + Source,
+            Args(s => s.Outputs.Add(GrypeOutput.Json("my out/grype.json"))));
+    }
+
+    [Fact]
+    public void Should_Quote_A_Source_Path_With_A_Space()
+    {
+        var fixture = new ScanFixture { Source = GrypeSource.Sbom("my boms/bom.cdx.json") };
+
+        Assert.Equal("\"sbom:/Working/my boms/bom.cdx.json\"", fixture.Run().Args);
+    }
+
     [Theory]
     [InlineData(GrypeSeverity.Negligible, "negligible")]
     [InlineData(GrypeSeverity.Low, "low")]
@@ -138,6 +154,39 @@ public sealed class GrypeScannerTests
     {
         var fixture = new ScanFixture();
         fixture.Settings.FailOn = GrypeSeverity.Unknown;
+
+        var result = Record.Exception(() => fixture.Run());
+
+        Assertions.IsArgumentException(result, "settings");
+    }
+
+    [Fact]
+    public void Should_Reject_An_Undefined_Fail_On()
+    {
+        var fixture = new ScanFixture();
+        fixture.Settings.FailOn = (GrypeSeverity)9;
+
+        var result = Record.Exception(() => fixture.Run());
+
+        Assertions.IsArgumentException(result, "settings");
+    }
+
+    [Fact]
+    public void Should_Reject_An_Undefined_Sort_By()
+    {
+        var fixture = new ScanFixture();
+        fixture.Settings.SortBy = (GrypeSortBy)99;
+
+        var result = Record.Exception(() => fixture.Run());
+
+        Assertions.IsArgumentException(result, "settings");
+    }
+
+    [Fact]
+    public void Should_Reject_An_Undefined_Scope()
+    {
+        var fixture = new ScanFixture();
+        fixture.Settings.Scope = (GrypeScope)99;
 
         var result = Record.Exception(() => fixture.Run());
 
@@ -163,10 +212,10 @@ public sealed class GrypeScannerTests
     }
 
     [Theory]
-    [InlineData(GrypeFixStates.Fixed, "fixed")]
-    [InlineData(GrypeFixStates.WontFix | GrypeFixStates.NotFixed, "not-fixed,wont-fix")]
-    [InlineData(GrypeFixStates.Fixed | GrypeFixStates.NotFixed | GrypeFixStates.Unknown | GrypeFixStates.WontFix, "fixed,not-fixed,unknown,wont-fix")]
-    public void Should_Add_Ignore_States(GrypeFixStates states, string expected)
+    [InlineData(GrypeIgnoreStates.Fixed, "fixed")]
+    [InlineData(GrypeIgnoreStates.WontFix | GrypeIgnoreStates.NotFixed, "not-fixed,wont-fix")]
+    [InlineData(GrypeIgnoreStates.Fixed | GrypeIgnoreStates.NotFixed | GrypeIgnoreStates.Unknown | GrypeIgnoreStates.WontFix, "fixed,not-fixed,unknown,wont-fix")]
+    public void Should_Add_Ignore_States(GrypeIgnoreStates states, string expected)
     {
         Assert.Equal($"--ignore-states {expected} {Source}", Args(s => s.IgnoreStates = states));
     }
@@ -230,7 +279,7 @@ public sealed class GrypeScannerTests
             s.SortBy = GrypeSortBy.Risk;
             s.OnlyFixed = true;
             s.OnlyNotFixed = true;
-            s.IgnoreStates = GrypeFixStates.WontFix;
+            s.IgnoreStates = GrypeIgnoreStates.WontFix;
             s.ByCve = true;
             s.AddCpesIfNone = true;
             s.Distro = "debian:12";

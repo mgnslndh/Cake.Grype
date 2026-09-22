@@ -52,6 +52,21 @@ namespace Cake.Grype.Scan
                     nameof(settings));
             }
 
+            if (settings.FailOn.HasValue && !Enum.IsDefined(settings.FailOn.Value))
+            {
+                throw new ArgumentException("FailOn is not a defined GrypeSeverity value.", nameof(settings));
+            }
+
+            if (settings.SortBy.HasValue && !Enum.IsDefined(settings.SortBy.Value))
+            {
+                throw new ArgumentException("SortBy is not a defined GrypeSortBy value.", nameof(settings));
+            }
+
+            if (settings.Scope.HasValue && !Enum.IsDefined(settings.Scope.Value))
+            {
+                throw new ArgumentException("Scope is not a defined GrypeScope value.", nameof(settings));
+            }
+
             var workingDirectory = ResolveWorkingDirectory(settings);
             var arguments = CreateArgumentBuilder(settings);
 
@@ -111,7 +126,7 @@ namespace Cake.Grype.Scan
                 arguments.Append("--only-notfixed");
             }
 
-            if (settings.IgnoreStates != GrypeFixStates.None)
+            if (settings.IgnoreStates != GrypeIgnoreStates.None)
             {
                 arguments.Append("--ignore-states");
                 arguments.Append(ToArgument(settings.IgnoreStates));
@@ -220,25 +235,25 @@ namespace Cake.Grype.Scan
             };
         }
 
-        private static string ToArgument(GrypeFixStates states)
+        private static string ToArgument(GrypeIgnoreStates states)
         {
             var values = new List<string>();
-            if (states.HasFlag(GrypeFixStates.Fixed))
+            if (states.HasFlag(GrypeIgnoreStates.Fixed))
             {
                 values.Add("fixed");
             }
 
-            if (states.HasFlag(GrypeFixStates.NotFixed))
+            if (states.HasFlag(GrypeIgnoreStates.NotFixed))
             {
                 values.Add("not-fixed");
             }
 
-            if (states.HasFlag(GrypeFixStates.Unknown))
+            if (states.HasFlag(GrypeIgnoreStates.Unknown))
             {
                 values.Add("unknown");
             }
 
-            if (states.HasFlag(GrypeFixStates.WontFix))
+            if (states.HasFlag(GrypeIgnoreStates.WontFix))
             {
                 values.Add("wont-fix");
             }
