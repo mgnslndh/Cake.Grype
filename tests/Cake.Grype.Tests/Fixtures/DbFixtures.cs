@@ -38,3 +38,33 @@ internal sealed class DbImportFixture : GrypeFixture<GrypeDbImportSettings>
         }
     }
 }
+
+internal sealed class DbStatusFixture : GrypeFixture<GrypeDbStatusSettings>
+{
+    public DbStatusFixture()
+    {
+        GivenStandardOutput("{}");
+    }
+
+    public GrypeDbStatus Result { get; private set; }
+
+    protected override void RunTool()
+    {
+        Result = new GrypeDbStatusReader(FileSystem, Environment, ProcessRunner, Tools).Read(Settings);
+    }
+}
+
+internal sealed class DbCheckFixture : GrypeFixture<GrypeDbCheckSettings>
+{
+    public DbCheckFixture()
+    {
+        GivenStandardOutput("{}");
+    }
+
+    public GrypeDbCheckResult Result { get; private set; }
+
+    protected override void RunTool()
+    {
+        Result = new GrypeDbChecker(FileSystem, Environment, ProcessRunner, Tools).Check(Settings);
+    }
+}

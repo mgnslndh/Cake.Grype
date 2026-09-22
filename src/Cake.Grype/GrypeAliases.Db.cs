@@ -142,5 +142,87 @@ namespace Cake.Grype
             settings ??= new GrypeDbDeleteSettings();
             new GrypeDbDeleter(context.FileSystem, context.Environment, context.ProcessRunner, context.Tools).Delete(settings);
         }
+
+        /// <summary>
+        /// Gets the status of the local Grype vulnerability database. A missing database returns
+        /// <c>Valid == false</c> with an <c>Error</c> instead of throwing.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <returns>The status.</returns>
+        /// <example>
+        /// <code>
+        /// var status = GrypeDbStatus();
+        /// if (!status.Valid)
+        /// {
+        ///     GrypeDbUpdate();
+        /// }
+        /// </code>
+        /// </example>
+        [CakeMethodAlias]
+        [CakeAliasCategory("Grype")]
+        [CakeNamespaceImport("Cake.Grype")]
+        [CakeNamespaceImport("Cake.Grype.Db")]
+        public static GrypeDbStatus GrypeDbStatus(this ICakeContext context)
+        {
+            return context.GrypeDbStatus(null);
+        }
+
+        /// <summary>
+        /// Gets the status of the local Grype vulnerability database using the specified settings.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="settings">The settings.</param>
+        /// <returns>The status.</returns>
+        [CakeMethodAlias]
+        [CakeAliasCategory("Grype")]
+        [CakeNamespaceImport("Cake.Grype")]
+        [CakeNamespaceImport("Cake.Grype.Db")]
+        public static GrypeDbStatus GrypeDbStatus(this ICakeContext context, GrypeDbStatusSettings settings)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+
+            settings ??= new GrypeDbStatusSettings();
+            return new GrypeDbStatusReader(context.FileSystem, context.Environment, context.ProcessRunner, context.Tools).Read(settings);
+        }
+
+        /// <summary>
+        /// Checks whether a newer Grype vulnerability database is available.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <returns>The result.</returns>
+        /// <example>
+        /// <code>
+        /// if (GrypeDbCheck().UpdateAvailable)
+        /// {
+        ///     GrypeDbUpdate();
+        /// }
+        /// </code>
+        /// </example>
+        [CakeMethodAlias]
+        [CakeAliasCategory("Grype")]
+        [CakeNamespaceImport("Cake.Grype")]
+        [CakeNamespaceImport("Cake.Grype.Db")]
+        public static GrypeDbCheckResult GrypeDbCheck(this ICakeContext context)
+        {
+            return context.GrypeDbCheck(null);
+        }
+
+        /// <summary>
+        /// Checks whether a newer Grype vulnerability database is available using the specified settings.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="settings">The settings.</param>
+        /// <returns>The result.</returns>
+        [CakeMethodAlias]
+        [CakeAliasCategory("Grype")]
+        [CakeNamespaceImport("Cake.Grype")]
+        [CakeNamespaceImport("Cake.Grype.Db")]
+        public static GrypeDbCheckResult GrypeDbCheck(this ICakeContext context, GrypeDbCheckSettings settings)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+
+            settings ??= new GrypeDbCheckSettings();
+            return new GrypeDbChecker(context.FileSystem, context.Environment, context.ProcessRunner, context.Tools).Check(settings);
+        }
     }
 }
