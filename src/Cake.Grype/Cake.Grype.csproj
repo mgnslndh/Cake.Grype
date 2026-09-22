@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <AssemblyName>Cake.Grype</AssemblyName>
+    <RootNamespace>Cake.Grype</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <VersionPrefix>0.1.0</VersionPrefix>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package">
+    <PackageId>Cake.Grype</PackageId>
+    <Authors>Magnus Lindhe</Authors>
+    <Description>Cake add-in for Anchore Grype: scan SBOMs, directories and images for vulnerabilities, manage the vulnerability database, and read the JSON report to gate builds on severity, KEV, EPSS, CVSS or risk.</Description>
+    <PackageTags>cake;cake-addin;cake-build;grype;anchore;sbom;cyclonedx;vulnerability;security;cve</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/mgnslndh/Cake.Grype</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mgnslndh/Cake.Grype.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Cake.Core" Version="6.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="icon.png" Pack="true" PackagePath="\" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
