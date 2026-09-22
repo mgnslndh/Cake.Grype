@@ -67,8 +67,9 @@ Verified against Grype 0.119.0 (Syft 1.52.0, DB schema v6) on Windows, installed
 
 **Other JSON outputs (observed)**
 
-- `db status -o json`: `schemaVersion`, `from`, `built`, `path`, `valid`. Exit `0`.
-- `db check -o json`: `currentDB { schemaVersion, built }`, `candidateDB` (null when current), `updateAvailable`. Exit `0` when current. **Unverified:** the exit code when an update is available (believed to be `100`); must be confirmed during implementation.
+- `db status -o json`: `schemaVersion`, `from`, `built`, `path`, `valid`, `error`. Exit `0` with a valid DB. **With no DB installed it exits `1` but still prints valid JSON:** `schemaVersion: ""`, `valid: false`, `error: "database does not exist"`.
+- `db check -o json`: `currentDB { schemaVersion, built }` (null when no DB is installed), `candidateDB { schemaVersion, built, path, checksum }` (null when current), `updateAvailable`. Exit `0` when current; **exit `100` when an update is available** (observed after `grype db delete`; stderr: `ERROR db upgrade available`).
+- **Reserved / unanalysed CVEs** (observed: 18 matches, e.g. `CVE-2026-53613` on util-linux packages): `severity: "Unknown"`, `risk: 0`, `epss`/`knownExploited`/`description` absent, `cvss: []`, and the related NVD record is equally empty. The table shows `Unknown  N/A  N/A`.
 - `version -o json`: `application`, `version`, `buildDate`, `gitCommit`, `gitDescription`, `platform`, `goVersion`, `compiler`, `syftVersion`, `supportedDbSchema`.
 
 ## Solution layout
@@ -227,6 +228,7 @@ GrypeVulnerability : GrypeVulnerabilityMetadata
 - Not mapped (reduces memory on large reports; addable later without breaking changes): `matchDetails`, artifact `locations`/`upstreams`, `descriptor.configuration`, `descriptor.db`.
 - `GrypeSeverity` and `GrypeFixState` parse case-insensitively; unrecognised values map to `Unknown` instead of throwing, so newer Grype versions don't break existing scripts.
 - `GrypeSeverity` is ordered `Unknown < Negligible < Low < Medium < High < Critical`, so `>=` comparisons work.
+- **`Unknown` means "not yet assessed", not "low".** Reserved or unanalysed CVEs have `Severity == Unknown`, `Risk == 0` and no EPSS/KEV/CVSS, so severity, risk and EPSS gates skip them. This is deliberate (they carry no signal yet); a gate that should block on them must check `m.Severity == GrypeSeverity.Unknown` explicitly. Documented in the README next to the gating example. Missing arrays (`epss`, `knownExploited`, `cwes`, `urls`) deserialise as empty lists, never null; missing `description` is null.
 
 **Alias** (`GrypeAliases.ReadJson.cs`): `GrypeReport GrypeReadJson(FilePath)`. Relative paths resolve against the Cake working directory; a missing file throws `FileNotFoundException`.
 
@@ -248,14 +250,14 @@ All settings classes derive from `GrypeSettings`; each command has its own runne
 | Alias | Runner / Settings | Invocation | Returns |
 |---|---|---|---|
 | `GrypeDbUpdate([s])` | `GrypeDbUpdater` / `GrypeDbUpdateSettings` | `grype db update` | `void` |
-| `GrypeDbStatus([s])` | `GrypeDbStatusReader` / `GrypeDbStatusSettings` | `grype db status -o json -q` | `GrypeDbStatus { SchemaVersion, From, Built, Path, Valid }` |
-| `GrypeDbCheck([s])` | `GrypeDbChecker` / `GrypeDbCheckSettings` | `grype db check -o json -q` | `GrypeDbCheckResult { UpdateAvailable, CurrentSchemaVersion, CurrentBuilt, CandidateSchemaVersion?, CandidateBuilt? }` |
+| `GrypeDbStatus([s])` | `GrypeDbStatusReader` / `GrypeDbStatusSettings` | `grype db status -o json -q` | `GrypeDbStatus { SchemaVersion, From?, Built?, Path, Valid, Error? }` |
+| `GrypeDbCheck([s])` | `GrypeDbChecker` / `GrypeDbCheckSettings` | `grype db check -o json -q` | `GrypeDbCheckResult { UpdateAvailable, Current: GrypeDbDescription?, Candidate: GrypeDbDescription? }` with `GrypeDbDescription { SchemaVersion, Built, Path?, Checksum? }` |
 | `GrypeDbImport(FilePath[, s])` / `GrypeDbImport(Uri[, s])` | `GrypeDbImporter` / `GrypeDbImportSettings` | `grype db import <abs path or URL>` | `void` |
 | `GrypeDbDelete([s])` | `GrypeDbDeleter` / `GrypeDbDeleteSettings` | `grype db delete` | `void` |
 | `GrypeVersion([s])` | `GrypeVersionReader` / `GrypeVersionSettings` | `grype version -o json -q` | `GrypeVersion { Application, Version, BuildDate, GitCommit, GitDescription, Platform, GoVersion, Compiler, SyftVersion, SupportedDbSchema }` |
 
-- `db check`: the runner treats the "update available" exit code as success and relies on `updateAvailable` in the JSON. The exact code must be verified during implementation (import an older DB via `db import`, then run `db check`).
-- `GrypeDbStatus` does not throw on `Valid == false`; the caller decides.
+- `db check`: the runner accepts exit `0` and `100` (update available) and relies on `updateAvailable` in the JSON. `Current` is null when no DB is installed.
+- `db status`: the runner accepts exit `1` **only** when stdout parses as status JSON with `valid: false`; it then returns the result (`Valid == false`, `Error` set) instead of throwing, and the caller decides. Exit `1` without parseable status JSON throws `CakeException` as usual.
 - `GrypeDbImport` takes `FilePath` or `Uri`, not `string`: a `string` overload next to `FilePath` would always win overload resolution (`FilePath` converts implicitly from `string`) and make the path/URL distinction implicit. A `Uri` may carry a `checksum=sha256:…` query parameter, which Grype verifies.
 - Aliases and result types share names where the alias *is* the query (`GrypeVersion GrypeVersion()`, `GrypeDbStatus GrypeDbStatus()`), following Cake's `GitVersion GitVersion()` precedent.
 
@@ -272,11 +274,11 @@ All settings classes derive from `GrypeSettings`; each command has its own runne
   - Argument building for every setting of every runner, including global flags, ordering and quoting of paths with spaces.
   - Every `GrypeSource` factory, relative-to-absolute path handling, `WorkingDirectory` override, implicit string conversion.
   - `GrypeOutput` rendering; output directory creation and stale-file deletion (fake file system).
-  - Stdout parsing for `db status`, `db check` (current and update-available), `version`, and invalid JSON.
+  - Stdout parsing for `db status` (valid; no DB with exit 1 → `Valid == false`; exit 1 with non-JSON → throws), `db check` (current / exit 100 with update available / no DB installed), `version`, and invalid JSON.
   - Exit code handling: `FailOn` exit `2` throws; `HandleExitCode` suppresses it.
-- **Report reader tests** against a small hand-trimmed fixture derived from real Grype output, covering: KEV, EPSS, CVSS present only on a related record, all fix states, an unknown severity string, ignored matches, BOM, unknown properties. Tests for each `GrypeMatch` signal helper.
+- **Report reader tests** against a small hand-trimmed fixture derived from real Grype output, covering: KEV, EPSS, CVSS present only on a related record, a reserved CVE (`Unknown` severity, `risk: 0`, absent `epss`/`knownExploited`/`description`), all fix states, an unrecognised severity string, ignored matches, BOM, unknown properties. Tests for each `GrypeMatch` signal helper.
 - **Architecture test:** `Cake.Grype.Json` does not reference `Cake.Grype.Scan` or `Cake.Grype.Db`.
-- **Manual end-to-end** (documented in the plan; needs network for the DB): with the packed add-in and real Grype on `etc/sample.cdx.json`, confirm table in terminal plus JSON artifact from one run; `FailOn = Critical` exits 2 with the file written; `GrypeReadJson` over the full 48 MB report and a sample gate; `GrypeDbStatus`/`GrypeDbCheck`/`GrypeVersion` results; `GrypeDbDelete` followed by `GrypeDbUpdate`; the `db check` update-available exit code.
+- **Manual end-to-end** (documented in the plan; needs network for the DB): with the packed add-in and real Grype on `etc/sample.cdx.json`, confirm table in terminal plus JSON artifact from one run; `FailOn = Critical` exits 2 with the file written; `GrypeReadJson` over the full 48 MB report and a sample gate; `GrypeDbStatus`/`GrypeDbCheck`/`GrypeVersion` results; `GrypeDbDelete`, then `GrypeDbStatus` (`Valid == false`) and `GrypeDbCheck` (`UpdateAvailable`), then `GrypeDbUpdate`; whether `FailOn` counts `Unknown`-severity matches (expected: no).
 - Tests run on all target frameworks.
 
 ## Out of scope (postponed)
