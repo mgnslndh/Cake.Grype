@@ -70,6 +70,7 @@ Verified against Grype 0.119.0 (Syft 1.52.0, DB schema v6) on Windows, installed
 - `db status -o json`: `schemaVersion`, `from`, `built`, `path`, `valid`, `error`. Exit `0` with a valid DB. **With no DB installed it exits `1` but still prints valid JSON:** `schemaVersion: ""`, `valid: false`, `error: "database does not exist"`.
 - `db check -o json`: `currentDB { schemaVersion, built }` (null when no DB is installed), `candidateDB { schemaVersion, built, path, checksum }` (null when current), `updateAvailable`. Exit `0` when current; **exit `100` when an update is available** (observed after `grype db delete`; stderr: `ERROR db upgrade available`).
 - **Reserved / unanalysed CVEs** (observed: 18 matches, e.g. `CVE-2026-53613` on util-linux packages): `severity: "Unknown"`, `risk: 0`, `epss`/`knownExploited`/`description` absent, `cvss: []`, and the related NVD record is equally empty. The table shows `Unknown  N/A  N/A`.
+- **`--fail-on` never triggers on `Unknown` severity** (from Grype v0.119.0 source, `grype/vulnerability_matcher.go` `hasSeverityAtOrAbove` and `grype/vulnerability/severity.go`): Grype orders `Unknown=0 < Negligible < Low < Medium < High < Critical`, identical to `GrypeSeverity`, and parses unrecognised severities as `Unknown`. A threshold of `Unknown` means "no threshold", which is why `FailOn = Unknown` is rejected.
 - `version -o json`: `application`, `version`, `buildDate`, `gitCommit`, `gitDescription`, `platform`, `goVersion`, `compiler`, `syftVersion`, `supportedDbSchema`.
 
 ## Solution layout
@@ -278,7 +279,7 @@ All settings classes derive from `GrypeSettings`; each command has its own runne
   - Exit code handling: `FailOn` exit `2` throws; `HandleExitCode` suppresses it.
 - **Report reader tests** against a small hand-trimmed fixture derived from real Grype output, covering: KEV, EPSS, CVSS present only on a related record, a reserved CVE (`Unknown` severity, `risk: 0`, absent `epss`/`knownExploited`/`description`), all fix states, an unrecognised severity string, ignored matches, BOM, unknown properties. Tests for each `GrypeMatch` signal helper.
 - **Architecture test:** `Cake.Grype.Json` does not reference `Cake.Grype.Scan` or `Cake.Grype.Db`.
-- **Manual end-to-end** (documented in the plan; needs network for the DB): with the packed add-in and real Grype on `etc/sample.cdx.json`, confirm table in terminal plus JSON artifact from one run; `FailOn = Critical` exits 2 with the file written; `GrypeReadJson` over the full 48 MB report and a sample gate; `GrypeDbStatus`/`GrypeDbCheck`/`GrypeVersion` results; `GrypeDbDelete`, then `GrypeDbStatus` (`Valid == false`) and `GrypeDbCheck` (`UpdateAvailable`), then `GrypeDbUpdate`; whether `FailOn` counts `Unknown`-severity matches (expected: no).
+- **Manual end-to-end** (documented in the plan; needs network for the DB): with the packed add-in and real Grype on `etc/sample.cdx.json`, confirm table in terminal plus JSON artifact from one run; `FailOn = Critical` exits 2 with the file written; `GrypeReadJson` over the full 48 MB report and a sample gate; `GrypeDbStatus`/`GrypeDbCheck`/`GrypeVersion` results; `GrypeDbDelete`, then `GrypeDbStatus` (`Valid == false`) and `GrypeDbCheck` (`UpdateAvailable`), then `GrypeDbUpdate`.
 - Tests run on all target frameworks.
 
 ## Out of scope (postponed)

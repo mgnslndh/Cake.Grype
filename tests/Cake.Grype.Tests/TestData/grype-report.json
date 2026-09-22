@@ -1,0 +1,775 @@
+{
+ "matches": [
+  {
+   "vulnerability": {
+    "id": "CVE-2023-44487",
+    "dataSource": "https://security-tracker.debian.org/tracker/CVE-2023-44487",
+    "namespace": "debian:distro:debian:12",
+    "severity": "High",
+    "urls": [],
+    "description": "The HTTP/2 protocol allows a denial of service (server resource consumption) bec",
+    "cvss": [
+     {
+      "source": "nvd@nist.gov",
+      "type": "Primary",
+      "version": "3.1",
+      "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "metrics": {
+       "baseScore": 7.5,
+       "exploitabilityScore": 3.9,
+       "impactScore": 3.6
+      },
+      "vendorMetadata": {}
+     }
+    ],
+    "knownExploited": [
+     {
+      "cve": "CVE-2023-44487",
+      "vendorProject": "IETF",
+      "product": "HTTP/2",
+      "dateAdded": "2023-10-10",
+      "requiredAction": "Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable.",
+      "dueDate": "2023-10-31",
+      "knownRansomwareCampaignUse": "unknown",
+      "notes": "This vulnerability affects a common open",
+      "urls": [
+       "https://blog.cloudflare.com/technical-breakdown-http2-rapid-reset-ddos-attack/"
+      ],
+      "cwes": [
+       "CWE-400"
+      ]
+     }
+    ],
+    "epss": [
+     {
+      "cve": "CVE-2023-44487",
+      "epss": 0.99999,
+      "percentile": 0.99999,
+      "date": "2026-09-21"
+     }
+    ],
+    "cwes": [
+     {
+      "cve": "CVE-2023-44487",
+      "cwe": "CWE-400",
+      "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+      "type": "Secondary"
+     }
+    ],
+    "fix": {
+     "versions": [],
+     "state": "wont-fix"
+    },
+    "advisories": [],
+    "risk": 78.75000000000001
+   },
+   "relatedVulnerabilities": [
+    {
+     "id": "CVE-2023-44487",
+     "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2023-44487",
+     "namespace": "nvd:cpe",
+     "severity": "High",
+     "urls": [
+      "http://www.openwall.com/lists/oss-security/2023/10/10/6"
+     ],
+     "description": "The HTTP/2 protocol allows a denial of service (server resource consumption) bec",
+     "cvss": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "version": "3.1",
+       "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+       "metrics": {
+        "baseScore": 7.5,
+        "exploitabilityScore": 3.9,
+        "impactScore": 3.6
+       },
+       "vendorMetadata": {}
+      },
+      {
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "type": "Secondary",
+       "version": "3.1",
+       "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+       "metrics": {
+        "baseScore": 7.5,
+        "exploitabilityScore": 3.9,
+        "impactScore": 3.6
+       },
+       "vendorMetadata": {}
+      }
+     ],
+     "knownExploited": [
+      {
+       "cve": "CVE-2023-44487",
+       "vendorProject": "IETF",
+       "product": "HTTP/2",
+       "dateAdded": "2023-10-10",
+       "requiredAction": "Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable.",
+       "dueDate": "2023-10-31",
+       "knownRansomwareCampaignUse": "unknown",
+       "notes": "This vulnerability affects a common open",
+       "urls": [
+        "https://blog.cloudflare.com/technical-breakdown-http2-rapid-reset-ddos-attack/"
+       ],
+       "cwes": [
+        "CWE-400"
+       ]
+      }
+     ],
+     "epss": [
+      {
+       "cve": "CVE-2023-44487",
+       "epss": 0.99999,
+       "percentile": 0.99999,
+       "date": "2026-09-21"
+      }
+     ],
+     "cwes": [
+      {
+       "cve": "CVE-2023-44487",
+       "cwe": "CWE-400",
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "type": "Secondary"
+      }
+     ]
+    }
+   ],
+   "matchDetails": [
+    {
+     "type": "exact-direct-match",
+     "matcher": "dpkg-matcher",
+     "searchedBy": {
+      "distro": {
+       "type": "debian",
+       "version": "12"
+      },
+      "package": {
+       "name": "varnish",
+       "version": "7.6.0"
+      },
+      "namespace": "debian:distro:debian:12"
+     },
+     "found": {
+      "vulnerabilityID": "CVE-2023-44487",
+      "versionConstraint": "none (unknown)"
+     }
+    }
+   ],
+   "artifact": {
+    "id": "pkg:deb/debian/varnish@7.6.0?arch=amd64&distro=debian-12&package-id=c1c51cef085f5562",
+    "name": "varnish",
+    "version": "7.6.0",
+    "type": "deb",
+    "locations": [
+     {
+      "path": "/usr/share/doc/varnish/copyright",
+      "layerID": "sha256:6d1c1731ac89d5ae8e3f29efeb9a4d9f4b008ea3e0b66496a8aaeeb5a85165e9",
+      "accessPath": ""
+     }
+    ],
+    "language": "",
+    "licenses": [],
+    "cpes": [
+     "cpe:2.3:a:varnish:varnish:7.6.0:*:*:*:*:*:*:*"
+    ],
+    "purl": "pkg:deb/debian/varnish@7.6.0?arch=amd64&distro=debian-12"
+   }
+  },
+  {
+   "vulnerability": {
+    "id": "CVE-2025-15467",
+    "dataSource": "https://security-tracker.debian.org/tracker/CVE-2025-15467",
+    "namespace": "debian:distro:debian:12",
+    "severity": "Critical",
+    "urls": [],
+    "description": "Issue summary: Parsing CMS AuthEnvelopedData or EnvelopedData message with malic",
+    "cvss": [
+     {
+      "source": "0b0ca135-0b70-47e7-9f44-1890c2a1c46c",
+      "type": "Secondary",
+      "version": "3.1",
+      "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "metrics": {
+       "baseScore": 9.8,
+       "exploitabilityScore": 3.9,
+       "impactScore": 5.9
+      },
+      "vendorMetadata": {}
+     }
+    ],
+    "epss": [
+     {
+      "cve": "CVE-2025-15467",
+      "epss": 0.48211,
+      "percentile": 0.98841,
+      "date": "2026-09-21"
+     }
+    ],
+    "cwes": [
+     {
+      "cve": "CVE-2025-15467",
+      "cwe": "CWE-787",
+      "source": "openssl-security@openssl.org",
+      "type": "Secondary"
+     },
+     {
+      "cve": "CVE-2025-15467",
+      "cwe": "CWE-120",
+      "source": "0b0ca135-0b70-47e7-9f44-1890c2a1c46c",
+      "type": "Secondary"
+     }
+    ],
+    "fix": {
+     "versions": [
+      "3.0.18-1~deb12u2"
+     ],
+     "state": "fixed",
+     "available": [
+      {
+       "version": "3.0.18-1~deb12u2",
+       "date": "2026-01-27",
+       "kind": "advisory"
+      }
+     ]
+    },
+    "advisories": [
+     {
+      "id": "DSA-6113-1",
+      "link": "https://security-tracker.debian.org/tracker/DSA-6113-1"
+     }
+    ],
+    "risk": 45.31834
+   },
+   "relatedVulnerabilities": [
+    {
+     "id": "CVE-2025-15467",
+     "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2025-15467",
+     "namespace": "nvd:cpe",
+     "severity": "Critical",
+     "urls": [
+      "https://github.com/openssl/openssl/commit/2c8f0e5fa9b6ee5508a0349e4572ddb74db5a703"
+     ],
+     "description": "Issue summary: Parsing CMS AuthEnvelopedData or EnvelopedData message with\nmalic",
+     "cvss": [
+      {
+       "source": "0b0ca135-0b70-47e7-9f44-1890c2a1c46c",
+       "type": "Secondary",
+       "version": "3.1",
+       "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+       "metrics": {
+        "baseScore": 9.8,
+        "exploitabilityScore": 3.9,
+        "impactScore": 5.9
+       },
+       "vendorMetadata": {}
+      },
+      {
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "type": "Secondary",
+       "version": "3.1",
+       "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+       "metrics": {
+        "baseScore": 8.8,
+        "exploitabilityScore": 2.9,
+        "impactScore": 5.9
+       },
+       "vendorMetadata": {}
+      }
+     ],
+     "epss": [
+      {
+       "cve": "CVE-2025-15467",
+       "epss": 0.48211,
+       "percentile": 0.98841,
+       "date": "2026-09-21"
+      }
+     ],
+     "cwes": [
+      {
+       "cve": "CVE-2025-15467",
+       "cwe": "CWE-787",
+       "source": "openssl-security@openssl.org",
+       "type": "Secondary"
+      },
+      {
+       "cve": "CVE-2025-15467",
+       "cwe": "CWE-120",
+       "source": "0b0ca135-0b70-47e7-9f44-1890c2a1c46c",
+       "type": "Secondary"
+      }
+     ]
+    }
+   ],
+   "matchDetails": [
+    {
+     "type": "exact-indirect-match",
+     "matcher": "dpkg-matcher",
+     "searchedBy": {
+      "distro": {
+       "type": "debian",
+       "version": "12"
+      },
+      "package": {
+       "name": "openssl",
+       "version": "3.0.14-1~deb12u2"
+      },
+      "namespace": "debian:distro:debian:12"
+     },
+     "found": {
+      "vulnerabilityID": "CVE-2025-15467",
+      "versionConstraint": "< 3.0.18-1~deb12u2 (deb)"
+     },
+     "fix": {
+      "suggestedVersion": "3.0.18-1~deb12u2"
+     }
+    }
+   ],
+   "artifact": {
+    "id": "pkg:deb/debian/libssl3@3.0.14-1~deb12u2?arch=amd64&upstream=openssl&distro=debian-12&package-id=77220972544ed1ad",
+    "name": "libssl3",
+    "version": "3.0.14-1~deb12u2",
+    "type": "deb",
+    "locations": [
+     {
+      "path": "/usr/share/doc/libssl3/copyright",
+      "layerID": "sha256:6d1c1731ac89d5ae8e3f29efeb9a4d9f4b008ea3e0b66496a8aaeeb5a85165e9",
+      "accessPath": ""
+     }
+    ],
+    "language": "",
+    "licenses": [
+     "Apache-2.0",
+     "Artistic",
+     "GPL-1.0-only",
+     "GPL-1.0-or-later"
+    ],
+    "cpes": [
+     "cpe:2.3:a:libssl3:libssl3:3.0.14-1\\~deb12u2:*:*:*:*:*:*:*"
+    ],
+    "purl": "pkg:deb/debian/libssl3@3.0.14-1~deb12u2?arch=amd64&upstream=openssl&distro=debian-12"
+   }
+  },
+  {
+   "vulnerability": {
+    "id": "CVE-2016-2781",
+    "dataSource": "https://security-tracker.debian.org/tracker/CVE-2016-2781",
+    "namespace": "debian:distro:debian:12",
+    "severity": "Low",
+    "urls": [],
+    "description": "chroot in GNU coreutils, when used with --userspec, allows local users to escape",
+    "cvss": [],
+    "epss": [
+     {
+      "cve": "CVE-2016-2781",
+      "epss": 0.00437,
+      "percentile": 0.37346,
+      "date": "2026-09-21"
+     }
+    ],
+    "cwes": [
+     {
+      "cve": "CVE-2016-2781",
+      "cwe": "CWE-20",
+      "source": "nvd@nist.gov",
+      "type": "Primary"
+     },
+     {
+      "cve": "CVE-2016-2781",
+      "cwe": "CWE-20",
+      "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+      "type": "Secondary"
+     }
+    ],
+    "fix": {
+     "versions": [],
+     "state": "wont-fix"
+    },
+    "advisories": [],
+    "risk": 0.1311
+   },
+   "relatedVulnerabilities": [
+    {
+     "id": "CVE-2016-2781",
+     "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2016-2781",
+     "namespace": "nvd:cpe",
+     "severity": "Medium",
+     "urls": [
+      "http://www.openwall.com/lists/oss-security/2016/02/28/2"
+     ],
+     "description": "chroot in GNU coreutils, when used with --userspec, allows local users to escape",
+     "cvss": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "version": "3.0",
+       "vector": "CVSS:3.0/AV:L/AC:L/PR:L/UI:N/S:C/C:N/I:H/A:N",
+       "metrics": {
+        "baseScore": 6.5,
+        "exploitabilityScore": 2.1,
+        "impactScore": 4
+       },
+       "vendorMetadata": {}
+      },
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "version": "2.0",
+       "vector": "AV:L/AC:L/Au:N/C:N/I:P/A:N",
+       "metrics": {
+        "baseScore": 2.1,
+        "exploitabilityScore": 4,
+        "impactScore": 2.9
+       },
+       "vendorMetadata": {}
+      },
+      {
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "type": "Secondary",
+       "version": "3.1",
+       "vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:N",
+       "metrics": {
+        "baseScore": 4.6,
+        "exploitabilityScore": 1.5,
+        "impactScore": 2.8
+       },
+       "vendorMetadata": {}
+      }
+     ],
+     "epss": [
+      {
+       "cve": "CVE-2016-2781",
+       "epss": 0.00437,
+       "percentile": 0.37346,
+       "date": "2026-09-21"
+      }
+     ],
+     "cwes": [
+      {
+       "cve": "CVE-2016-2781",
+       "cwe": "CWE-20",
+       "source": "nvd@nist.gov",
+       "type": "Primary"
+      },
+      {
+       "cve": "CVE-2016-2781",
+       "cwe": "CWE-20",
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "type": "Secondary"
+      }
+     ]
+    }
+   ],
+   "matchDetails": [
+    {
+     "type": "exact-direct-match",
+     "matcher": "dpkg-matcher",
+     "searchedBy": {
+      "distro": {
+       "type": "debian",
+       "version": "12"
+      },
+      "package": {
+       "name": "coreutils",
+       "version": "9.1-1"
+      },
+      "namespace": "debian:distro:debian:12"
+     },
+     "found": {
+      "vulnerabilityID": "CVE-2016-2781",
+      "versionConstraint": "none (unknown)"
+     }
+    }
+   ],
+   "artifact": {
+    "id": "pkg:deb/debian/coreutils@9.1-1?arch=amd64&distro=debian-12&package-id=46f159e6ed8b7e3e",
+    "name": "coreutils",
+    "version": "9.1-1",
+    "type": "deb",
+    "locations": [
+     {
+      "path": "/var/lib/dpkg/status",
+      "layerID": "sha256:6d1c1731ac89d5ae8e3f29efeb9a4d9f4b008ea3e0b66496a8aaeeb5a85165e9",
+      "accessPath": ""
+     }
+    ],
+    "language": "",
+    "licenses": [
+     "BSD-4-Clause-UC",
+     "FSFULLR",
+     "GFDL-1.3-only",
+     "GFDL-NIV-1.3",
+     "GPL-3.0-only",
+     "GPL-3.0-or-later",
+     "ISC"
+    ],
+    "cpes": [
+     "cpe:2.3:a:coreutils:coreutils:9.1-1:*:*:*:*:*:*:*"
+    ],
+    "purl": "pkg:deb/debian/coreutils@9.1-1?arch=amd64&distro=debian-12"
+   }
+  },
+  {
+   "vulnerability": {
+    "id": "CVE-2026-53613",
+    "dataSource": "https://security-tracker.debian.org/tracker/CVE-2026-53613",
+    "namespace": "debian:distro:debian:12",
+    "severity": "Unknown",
+    "urls": [],
+    "cvss": [],
+    "fix": {
+     "versions": [],
+     "state": "not-fixed"
+    },
+    "advisories": [],
+    "risk": 0
+   },
+   "relatedVulnerabilities": [
+    {
+     "id": "CVE-2026-53613",
+     "dataSource": "nvd",
+     "namespace": "nvd:cpe",
+     "severity": "Unknown",
+     "urls": [],
+     "cvss": []
+    }
+   ],
+   "matchDetails": [
+    {
+     "type": "exact-indirect-match",
+     "matcher": "dpkg-matcher",
+     "searchedBy": {
+      "distro": {
+       "type": "debian",
+       "version": "12"
+      },
+      "package": {
+       "name": "util-linux",
+       "version": "2.38.1-5+deb12u1"
+      },
+      "namespace": "debian:distro:debian:12"
+     },
+     "found": {
+      "vulnerabilityID": "CVE-2026-53613",
+      "versionConstraint": "none (unknown)"
+     }
+    }
+   ],
+   "artifact": {
+    "id": "pkg:deb/debian/bsdextrautils@2.38.1-5%2Bdeb12u1?arch=amd64&upstream=util-linux&distro=debian-12&package-id=7b53d81d7d88fa44",
+    "name": "bsdextrautils",
+    "version": "2.38.1-5+deb12u1",
+    "type": "deb",
+    "locations": [
+     {
+      "path": "/usr/share/doc/bsdextrautils/copyright",
+      "layerID": "sha256:6d1c1731ac89d5ae8e3f29efeb9a4d9f4b008ea3e0b66496a8aaeeb5a85165e9",
+      "accessPath": ""
+     }
+    ],
+    "language": "",
+    "licenses": [
+     "BSD-3-Clause",
+     "BSD-4-Clause",
+     "BSLA",
+     "GPL-2.0-only",
+     "GPL-2.0-or-later",
+     "GPL-3.0-only",
+     "GPL-3.0-or-later",
+     "LGPL",
+     "LGPL-2.0-only",
+     "LGPL-2.0-or-later",
+     "LGPL-2.1-only",
+     "LGPL-2.1-or-later",
+     "LGPL-3.0-only",
+     "LGPL-3.0-or-later",
+     "MIT",
+     "public-domain"
+    ],
+    "cpes": [
+     "cpe:2.3:a:bsdextrautils:bsdextrautils:2.38.1-5\\+deb12u1:*:*:*:*:*:*:*"
+    ],
+    "purl": "pkg:deb/debian/bsdextrautils@2.38.1-5%2Bdeb12u1?arch=amd64&upstream=util-linux&distro=debian-12"
+   }
+  }
+ ],
+ "ignoredMatches": [
+  {
+   "vulnerability": {
+    "id": "CVE-2004-0230",
+    "dataSource": "https://security-tracker.debian.org/tracker/CVE-2004-0230",
+    "namespace": "debian:distro:debian:12",
+    "severity": "Negligible",
+    "urls": [],
+    "description": "TCP, when using a large Window Size, makes it easier for remote attackers to gue",
+    "cvss": [],
+    "epss": [
+     {
+      "cve": "CVE-2004-0230",
+      "epss": 0.80286,
+      "percentile": 0.99613,
+      "date": "2026-09-21"
+     }
+    ],
+    "cwes": [
+     {
+      "cve": "CVE-2004-0230",
+      "cwe": "NVD-CWE-Other",
+      "source": "nvd@nist.gov",
+      "type": "Primary"
+     }
+    ],
+    "fix": {
+     "versions": [],
+     "state": "not-fixed"
+    },
+    "advisories": [],
+    "risk": 4.0143
+   },
+   "relatedVulnerabilities": [
+    {
+     "id": "CVE-2004-0230",
+     "dataSource": "https://nvd.nist.gov/vuln/detail/CVE-2004-0230",
+     "namespace": "nvd:cpe",
+     "severity": "Medium",
+     "urls": [
+      "ftp://ftp.netbsd.org/pub/NetBSD/security/advisories/NetBSD-SA2004-006.txt.asc"
+     ],
+     "description": "TCP, when using a large Window Size, makes it easier for remote attackers to gue",
+     "cvss": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "version": "2.0",
+       "vector": "AV:N/AC:L/Au:N/C:N/I:N/A:P",
+       "metrics": {
+        "baseScore": 5,
+        "exploitabilityScore": 10,
+        "impactScore": 2.9
+       },
+       "vendorMetadata": {}
+      }
+     ],
+     "epss": [
+      {
+       "cve": "CVE-2004-0230",
+       "epss": 0.80286,
+       "percentile": 0.99613,
+       "date": "2026-09-21"
+      }
+     ],
+     "cwes": [
+      {
+       "cve": "CVE-2004-0230",
+       "cwe": "NVD-CWE-Other",
+       "source": "nvd@nist.gov",
+       "type": "Primary"
+      }
+     ]
+    }
+   ],
+   "matchDetails": [
+    {
+     "type": "exact-indirect-match",
+     "matcher": "dpkg-matcher",
+     "searchedBy": {
+      "distro": {
+       "type": "debian",
+       "version": "12"
+      },
+      "package": {
+       "name": "linux",
+       "version": "6.1.106-3"
+      },
+      "namespace": "debian:distro:debian:12"
+     },
+     "found": {
+      "vulnerabilityID": "CVE-2004-0230",
+      "versionConstraint": "none (unknown)"
+     }
+    }
+   ],
+   "artifact": {
+    "id": "pkg:deb/debian/linux-libc-dev@6.1.106-3?arch=amd64&upstream=linux&distro=debian-12&package-id=527c754cee4b4f26",
+    "name": "linux-libc-dev",
+    "version": "6.1.106-3",
+    "type": "deb",
+    "locations": [
+     {
+      "path": "/usr/share/doc/linux-libc-dev/copyright",
+      "layerID": "sha256:6d1c1731ac89d5ae8e3f29efeb9a4d9f4b008ea3e0b66496a8aaeeb5a85165e9",
+      "accessPath": ""
+     }
+    ],
+    "language": "",
+    "licenses": [
+     "BSD-2-Clause",
+     "CRYPTOGAMS",
+     "GPL-2+-or-X11",
+     "GPL-2.0-only",
+     "LGPL-2.1-only",
+     "Unicode-data",
+     "Xen-interface"
+    ],
+    "cpes": [
+     "cpe:2.3:a:linux-libc-dev:linux-libc-dev:6.1.106-3:*:*:*:*:*:*:*",
+     "cpe:2.3:a:linux-libc-dev:linux_libc_dev:6.1.106-3:*:*:*:*:*:*:*",
+     "cpe:2.3:a:linux_libc_dev:linux-libc-dev:6.1.106-3:*:*:*:*:*:*:*",
+     "cpe:2.3:a:linux_libc_dev:linux_libc_dev:6.1.106-3:*:*:*:*:*:*:*",
+     "cpe:2.3:a:linux-libc:linux-libc-dev:6.1.106-3:*:*:*:*:*:*:*",
+     "cpe:2.3:a:linux-libc:linux_libc_dev:6.1.106-3:*:*:*:*:*:*:*",
+     "cpe:2.3:a:linux_libc:linux-libc-dev:6.1.106-3:*:*:*:*:*:*:*",
+     "cpe:2.3:a:linux_libc:linux_libc_dev:6.1.106-3:*:*:*:*:*:*:*",
+     "cpe:2.3:a:linux:linux-libc-dev:6.1.106-3:*:*:*:*:*:*:*",
+     "cpe:2.3:a:linux:linux_libc_dev:6.1.106-3:*:*:*:*:*:*:*"
+    ],
+    "purl": "pkg:deb/debian/linux-libc-dev@6.1.106-3?arch=amd64&upstream=linux&distro=debian-12"
+   },
+   "appliedIgnoreRules": [
+    {
+     "namespace": "",
+     "package": {
+      "name": "linux-libc-dev",
+      "language": "",
+      "type": "deb",
+      "upstream-name": "linux"
+     },
+     "match-type": "exact-indirect-match"
+    }
+   ]
+  }
+ ],
+ "source": {
+  "type": "image",
+  "target": {
+   "userInput": "docker.io/library/varnish",
+   "imageID": "8626a6887e516776",
+   "manifestDigest": "sha256:a71cc6138225f2c8ba371927b994d4b5b2a6a437da8c6f81304742aa55dda57a"
+  }
+ },
+ "distro": {
+  "name": "debian",
+  "version": "12",
+  "idLike": [
+   "debian"
+  ]
+ },
+ "descriptor": {
+  "name": "grype",
+  "version": "0.119.0",
+  "configuration": {
+   "output": [
+    "json"
+   ],
+   "only-fixed": false
+  },
+  "db": {
+   "status": {
+    "schemaVersion": "v6.1.9",
+    "built": "2026-09-22T06:30:41Z",
+    "valid": true
+   }
+  },
+  "timestamp": "2026-09-22T20:15:25.2703298+02:00"
+ }
+}
