@@ -21,15 +21,16 @@ Success criteria:
 |---|---|
 | Approach | Mirror Cake.CycloneDX: a Cake Frosting build project in `build/`, a separate Frosting dogfood project, three GitHub workflows, MinVer, NuGet trusted publishing, `gh release create --generate-notes`, the same release policy. |
 | Dogfood target | `ProjectReference` to `src/Cake.Grype/Cake.Grype.csproj` — always the commit being built, never a published Cake.Grype. The only package reference is **Cake.CycloneDX 0.0.5**, used to produce the SBOM. |
-| Dogfood source | SBOM chain: Cake.CycloneDX `CdxDotNet` → `GrypeScanSbom` → `GrypeReadJson`. Exercises requirements A (table in the log), B (JSON artifact) and C (C# gate). |
+| Dogfood source | SBOM chain: Cake.CycloneDX `CdxDotNet` on **`Cake.Grype.sln`** (the whole solution: add-in, tests, dogfood project — 53 components when probed) → `GrypeScanSbom` → `GrypeReadJson`. Exercises requirements A (table in the log), B (JSON artifact) and C (C# gate). Decided after probing: the add-in project alone yields an empty SBOM with development dependencies excluded (its only package, `Cake.Core`, is `PrivateAssets=All`) and a single component without. |
 | Dogfood gate | Fail on any known-exploited match, or any `High`/`Critical` match with fix state `Fixed`. `Unknown`-severity matches are logged, never fail. Always log counts per severity. |
-| Package verification | The dogfood uses a project reference, so the `Pack` task verifies the `.nupkg` instead: `lib/net8.0`, `lib/net9.0`, `lib/net10.0` each with `Cake.Grype.dll` and `Cake.Grype.xml`; `icon.png`; `README.md`; nuspec tag `cake-addin`; no `Cake.Core` dependency. |
+| Package verification | The dogfood uses a project reference, so the `Pack` task verifies the `.nupkg` instead (a `PackageVerifier` class in `build/`): `lib/net8.0`, `lib/net9.0`, `lib/net10.0` each with `Cake.Grype.dll` and `Cake.Grype.xml`; `icon.png`; `README.md`; nuspec tag `cake-addin`; no `Cake.Core` dependency. |
 | Central Package Management | Adopted. `Directory.Packages.props` at the **repo root** (covers `src/`, `tests/` and `build/`). Project files keep version-less `PackageReference`s; `Cake.Core` keeps `PrivateAssets="All"`. |
-| Library build settings | `src/Directory.Build.props` (scoped to `src/`): MinVer, `Deterministic`, `ContinuousIntegrationBuild` when `GITHUB_ACTIONS == true`, SourceLink (`PublishRepositoryUrl`, `EmbedUntrackedSources`), `DebugType` embedded, NuGet audit (`all`/`low`), `TreatWarningsAsErrors` in Release. `VersionPrefix` is removed from `Cake.Grype.csproj`. |
+| Library build settings | `src/Directory.Build.props` (scoped to `src/`): MinVer, `Deterministic`, `ContinuousIntegrationBuild` when `GITHUB_ACTIONS == true`, SourceLink (`PublishRepositoryUrl`, `EmbedUntrackedSources`), `DebugType` embedded, NuGet audit (`all`/`low`), `TreatWarningsAsErrors` in Release. `VersionPrefix`, `IncludeSymbols` and `SymbolPackageFormat` are removed from `Cake.Grype.csproj` (symbols are embedded in the DLL, so no `.snupkg` is produced). |
 | Not adopted | StyleCop (would require re-validating every file against a new ruleset; out of scope). |
 | Layout | Unchanged: `Cake.Grype.sln`, `src/`, `tests/` at the root. The dogfood project is added to the solution. |
 | CI matrix | PR and `main`: `windows-latest`, `ubuntu-latest`, `macos-latest` (Cake.CycloneDX runs PRs on Windows only; Grype path handling is OS-specific and the repository is public). Release: `windows-latest`. |
 | Grype on CI | `anchore/scan-action/download-grype` (supports Windows/Linux/macOS; outputs the executable path as `cmd`; `cache-db: true`). The path is passed to the dogfood as `GRYPE_PATH` and used as `ToolPath`; locally Grype is resolved from `PATH`. |
+| Cake.Frosting version | **6.3.0** for both Frosting projects. Probed: 6.1.0 (Cake.CycloneDX's version) pulls `NuGet.Packaging`/`NuGet.Protocol` 7.3.0, which carry a low-severity advisory (GHSA-g4vj-cjjj-v7hg); with NuGet audit level `low` and warnings-as-errors the Release build fails with NU1901. 6.2.0 and 6.3.0 build clean. |
 | SDK | `global.json` gains `"sdk": { "version": "10.0.100", "rollForward": "latestFeature" }`, keeping `"test": { "runner": "Microsoft.Testing.Platform" }`. |
 
 ## Research findings
@@ -37,6 +38,7 @@ Success criteria:
 - **Cake.CycloneDX** (sibling, `C:\Dev\GitHub\mgnslndh\Cake.CycloneDX`, tag `v0.0.5`): `build/Build.csproj` (Cake.Frosting 6.1.0, MinVer 7.0.0 for display via `AssemblyMetadata.Generators`, `RunWorkingDirectory` = repo root), `build/MinVer.props` (`MinVerTagPrefix` `v`, `MinVerDefaultPreReleaseIdentifiers` `alpha.0`), tasks `Default`, `Build`, `Test`, `Pack`, `Dogfood`, `All`, `Publish` (`DotNetNuGetPush` to nuget.org with `NUGET_API_KEY`, `SkipDuplicate`), `Release` (`gh release create <GITHUB_REF_NAME> ./artifacts/*.nupkg --generate-notes`, `--prerelease --latest=false` if the tag contains `-`, otherwise `--verify-tag --fail-on-no-commits`). Workflows: `pr.yml`, `main.yml`, `release.yml` (tag `v*`, `environment: Production`, `permissions: contents: write, id-token: write`, `NuGet/login@v1` with `user: ${{ secrets.NUGET_USER }}` → `NUGET_API_KEY`). `docs/release-policy.md` defines tag/version rules; no `.github/release.yml` exists there yet although the policy recommends one.
 - **Cake.CycloneDX on nuget.org:** `0.0.5` is the latest stable. Its `CdxDotNetSettings` has `Framework`, `Output` (`DirectoryPath`), `FileName`, `OutputFormat`, `ComponentName`, `ComponentVersion`, `ComponentType`, `ExcludeDevelopmentDependencies`, `ExcludeTestProjects`, `Recursive`, `IncludeProjectReferences`, `SpecVersion`. It runs the `CycloneDX` dotnet tool, whose latest version is **6.2.0** (6.x requires the .NET 10 SDK).
 - **anchore/scan-action** latest `v7.4.2`; sub-action `download-grype` installs via Grype's `install.sh`, names the binary `grype.exe` on Windows, outputs `cmd` (absolute path), accepts `grype-version` and `cache-db`.
+- **Probed on a scratch copy (2026-09-23):** with the files this spec describes, `build --target All` passed (Build, Test with 546 tests, Pack with verification, Dogfood with Generate-Sbom/Scan/Gate). Grype found no vulnerabilities in the solution SBOM. The gate's failing path, run as `--target Gate --exclusive` against the committed test fixture, failed with "2 blocking vulnerabilities" (the known-exploited CVE-2023-44487 and the fixed critical CVE-2025-15467). Cake 6's `DotNetTest` needs `PathType = Solution` (emits `--solution`) under the .NET 10 MTP runner. A `const string Configuration` on a `FrostingContext` hides `CakeContextAdapter.Configuration` (CS0108).
 - **Cake.Grype on GitHub** (`mgnslndh/Cake.Grype`): public, default branch `main`, no tags, no environments (Cake.CycloneDX has `Production`).
 
 ## Section 1 — Repository changes
@@ -76,15 +78,17 @@ All tasks operate on `Cake.Grype.sln` (or `src/Cake.Grype/Cake.Grype.csproj` for
 | Task | Does | Depends on |
 |---|---|---|
 | `Build` | `DotNetBuild("Cake.Grype.sln")`, Release | – |
-| `Test` | `DotNetTest("Cake.Grype.sln")`, Release, `NoBuild` | Build |
+| `Test` | `DotNetTest("Cake.Grype.sln")`, Release, `NoBuild`, `PathType = Solution` | Build |
 | `Pack` | `DotNetPack("src/Cake.Grype/Cake.Grype.csproj")` → `./artifacts`, `NoBuild`; then verifies the package (below) | Build |
 | `Dogfood` | `DotNetRun("src/Cake.Grype.Dogfooding.Build/…csproj")`, Release, `NoBuild`, passes `--verbosity` through | Build |
 | `All` | – | Test, Pack, Dogfood |
 | `Default` | – | Build |
-| `Publish` | `DotNetNuGetPush` every `./artifacts/*.nupkg` to `https://api.nuget.org/v3/index.json` with `NUGET_API_KEY`, `SkipDuplicate`; throws `CakeException` if the key is missing | – |
-| `Release` | `gh release create <GITHUB_REF_NAME> ./artifacts/*.nupkg --generate-notes` plus `--prerelease --latest=false` if the tag contains `-`, else `--verify-tag --fail-on-no-commits`; throws if `GITHUB_REF_NAME` is missing | Publish |
+| `Publish` | Resolves the release package from the tag (below), then `DotNetNuGetPush` it to `https://api.nuget.org/v3/index.json` with `NUGET_API_KEY`, `SkipDuplicate`; throws `CakeException` if the key is missing | – |
+| `Release` | `gh release create <GITHUB_REF_NAME> <release package path> --generate-notes` plus `--prerelease --latest=false` if the tag contains `-`, else `--verify-tag --fail-on-no-commits`; the package is passed as an explicit path (no shell expands globs for `StartProcess`) and a non-zero `gh` exit code throws | Publish |
 
-**Package verification (`Pack`):** exactly one `Cake.Grype.*.nupkg` (plus `.snupkg`) in `./artifacts`; the zip contains `lib/net8.0/Cake.Grype.dll`, `lib/net8.0/Cake.Grype.xml` and the same for `net9.0` and `net10.0`, `icon.png`, `README.md`; the nuspec contains the tag `cake-addin` and no `Cake.Core` dependency. Failure throws `CakeException` naming what is missing. `./artifacts` is cleaned at the start of `Pack` so stale packages cannot be published.
+**Release package resolution (`Publish`, `Release`):** `GITHUB_REF_NAME` must be a tag `v<version>`, and `artifacts/Cake.Grype.<version>.nupkg` must exist; otherwise `CakeException` naming the tag and what `artifacts` contains. This guarantees the published package version equals the tag.
+
+**Package verification (`Pack`):** exactly one `Cake.Grype.*.nupkg` in `./artifacts`; the zip contains `lib/net8.0/Cake.Grype.dll`, `lib/net8.0/Cake.Grype.xml` and the same for `net9.0` and `net10.0`, `icon.png`, `README.md`; the nuspec contains the tag `cake-addin` and no `Cake.Core` dependency. Failure throws `CakeException` naming what is missing. `Pack` deletes `./artifacts/*.nupkg` before packing so stale packages cannot be published (it leaves `artifacts/dogfood/` alone).
 
 `BuildLifetime.Setup` logs the MinVer package version.
 
@@ -92,7 +96,7 @@ All tasks operate on `Cake.Grype.sln` (or `src/Cake.Grype/Cake.Grype.csproj` for
 
 Frosting tasks, run in order by its `Default` task; output under `artifacts/dogfood/` (repo-root relative):
 
-1. **`Generate-Sbom`** — `CdxDotNet("src/Cake.Grype/Cake.Grype.csproj")` with `ComponentName = "Cake.Grype"`, `ComponentType = Library`, `Framework = "net8.0"`, `OutputFormat = Json`, `ExcludeDevelopmentDependencies = true`, `Output = artifacts/dogfood`, `FileName = "Cake.Grype.cdx.json"`. Requires the `CycloneDX` dotnet tool (6.2.0) to be installed.
+1. **`Generate-Sbom`** — `CdxDotNet("Cake.Grype.sln")` with `ComponentName = "Cake.Grype"`, `ComponentType = Library`, `OutputFormat = Json`, `Output = artifacts/dogfood`, `FileName = "Cake.Grype.cdx.json"`. Requires the `CycloneDX` dotnet tool (6.2.0) to be installed.
 2. **`Scan`** — `GrypeScanSbom("artifacts/dogfood/Cake.Grype.cdx.json")` with `Outputs = { Table(), Json("artifacts/dogfood/grype.json") }`, `SortBy = Risk`, `ToolPath` = `GRYPE_PATH` when set.
 3. **`Gate`** — `GrypeReadJson("artifacts/dogfood/grype.json")`; logs `CountBySeverity()`; logs each blocking match (package, version, vulnerability id, severity, risk); logs the number of `Unknown`-severity matches; throws `CakeException("<n> blocking vulnerabilities in Cake.Grype's dependencies")` when any match is known exploited, or has severity `>= High` with fix state `Fixed`.
 
@@ -130,7 +134,8 @@ Common env: `DOTNET_SKIP_FIRST_TIME_EXPERIENCE`, `DOTNET_CLI_TELEMETRY_OPTOUT`. 
 
 - Existing unit tests pass after CPM/`Directory.Build.props` (run through `./build.ps1 --target Test`).
 - Local end to end: `./build.ps1 --target All` passes on the developer machine (Windows, Grype from `PATH`, CycloneDX tool installed), producing `artifacts/Cake.Grype.0.0.0-alpha.0.N.nupkg` (MinVer's version before the first tag) and `artifacts/dogfood/{Cake.Grype.cdx.json, grype.json}`, with Grype's table in the log.
-- The failing path of the gate is verified once, manually: temporarily point `Gate` at the committed fixture `tests/Cake.Grype.Tests/TestData/grype-report.json` (it contains a known-exploited match and a fixed critical), expect the `CakeException`, then revert. No permanent hook or override is added.
+- The failing path of the gate is verified once, manually and without code changes: copy the committed fixture `tests/Cake.Grype.Tests/TestData/grype-report.json` over `artifacts/dogfood/grype.json` and run the dogfood with `--target Gate --exclusive`; expect `2 blocking vulnerabilities in Cake.Grype's dependencies`.
+- The release-package guard is verified locally without publishing: `Publish` with `GITHUB_REF_NAME=v9.9.9` must fail naming the missing `Cake.Grype.9.9.9.nupkg` before any push; with a matching tag and no `NUGET_API_KEY` it must fail on the missing key.
 - Workflows are verified by the first pull request (all three OSes green, artifacts uploaded). `Publish`/`Release` are verified by the first `v0.1.0` tag, which the owner pushes after completing the manual prerequisites. No tag is pushed without the owner's explicit go-ahead.
 
 ## Out of scope
