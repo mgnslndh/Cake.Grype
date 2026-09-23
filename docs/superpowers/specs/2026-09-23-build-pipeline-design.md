@@ -80,7 +80,7 @@ All tasks operate on `Cake.Grype.sln` (or `src/Cake.Grype/Cake.Grype.csproj` for
 | `Build` | `DotNetBuild("Cake.Grype.sln")`, Release | – |
 | `Test` | `DotNetTest("Cake.Grype.sln")`, Release, `NoBuild`, `PathType = Solution` | Build |
 | `Pack` | `DotNetPack("src/Cake.Grype/Cake.Grype.csproj")` → `./artifacts`, `NoBuild`; then verifies the package (below) | Build |
-| `Dogfood` | `DotNetRun("src/Cake.Grype.Dogfooding.Build/…csproj")`, Release, `NoBuild`, passes `--verbosity` through | Build |
+| `Dogfood` | `DotNetRun("src/Cake.Grype.Dogfooding.Build/…csproj")`, Release, `NoBuild`, `NoRestore` | Build |
 | `All` | – | Test, Pack, Dogfood |
 | `Default` | – | Build |
 | `Publish` | Resolves the release package from the tag (below), then `DotNetNuGetPush` it to `https://api.nuget.org/v3/index.json` with `NUGET_API_KEY`, `SkipDuplicate`; throws `CakeException` if the key is missing | – |
