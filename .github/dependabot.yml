@@ -1,0 +1,29 @@
+# Weekly, grouped version updates. Security updates are enabled separately in the repository settings.
+# Not covered here (bump by hand): the Grype and CycloneDX tool versions in .github/actions/setup-build/action.yml,
+# and the Cake.Tool / Cake.Sdk versions in the smoke-test templates under tests/Smoke.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    ignore:
+      # The add-in references the lowest Cake version with API compatibility to the latest Cake
+      # (Cake add-in best practice §2.1); the tests use the matching Cake.Testing. Raise these deliberately.
+      - dependency-name: Cake.Core
+      - dependency-name: Cake.Testing
+    groups:
+      nuget:
+        patterns:
+          - "*"
+
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/setup-build
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
