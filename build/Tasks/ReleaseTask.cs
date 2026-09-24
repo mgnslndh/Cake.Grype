@@ -1,13 +1,13 @@
-using Cake.Common;
+using Cake.Common.Diagnostics;
 using Cake.Core;
-using Cake.Core.IO;
 using Cake.Frosting;
 
 namespace Build.Tasks
 {
     /// <summary>
-    /// Creates the GitHub Release for the pushed tag with generated notes and the package attached.
-    /// A tag containing '-' (e.g. v1.2.0-preview.1) becomes a prerelease that is not marked latest.
+    /// Releases the pushed tag: draft GitHub Release (Draft-Release), NuGet push (Publish), then publishes the draft.
+    /// NuGet is the only irreversible step; every step can be re-run if a later one fails. A tag containing '-'
+    /// (e.g. v1.2.0-preview.1) becomes a prerelease that is not marked latest.
     /// </summary>
     [TaskName("Release")]
     [IsDependentOn(typeof(PublishTask))]
@@ -15,30 +15,19 @@ namespace Build.Tasks
     {
         public override void Run(BuildContext context)
         {
-            var package = context.ResolveReleasePackage();
             var tag = context.GitHubRefName;
 
-            var arguments = new ProcessArgumentBuilder()
-                .Append("release")
-                .Append("create")
-                .Append(tag)
-                .AppendQuoted(package.FullPath)
-                .Append("--generate-notes");
-
-            if (tag.Contains('-'))
+            switch (context.GetGitHubReleaseState(tag))
             {
-                arguments.Append("--prerelease").Append("--latest=false");
-            }
-            else
-            {
-                arguments.Append("--verify-tag").Append("--fail-on-no-commits");
-            }
-
-            // StartProcess does not go through a shell, so the package is passed as an explicit path (no globs).
-            var exitCode = context.StartProcess("gh", new ProcessSettings { Arguments = arguments });
-            if (exitCode != 0)
-            {
-                throw new CakeException($"gh release create failed (exit code {exitCode}).");
+                case GitHubReleaseState.Draft:
+                    context.Information("Publishing GitHub Release {0}", tag);
+                    context.RunGitHubCli(GitHubRelease.Publish(tag));
+                    break;
+                case GitHubReleaseState.Published:
+                    context.Information("GitHub Release {0} is already published", tag);
+                    break;
+                case GitHubReleaseState.Missing:
+                    throw new CakeException($"The draft GitHub Release {tag} no longer exists; re-run the release to recreate it.");
             }
         }
     }

@@ -1,4 +1,5 @@
 using System.Linq;
+using Cake.Common;
 using Cake.Common.Diagnostics;
 using Cake.Common.IO;
 using Cake.Core;
@@ -53,6 +54,35 @@ namespace Build
 
             this.Information("Release package: {0}", expected.GetFilename());
             return expected;
+        }
+
+        /// <summary>
+        /// Gets whether the GitHub Release for the tag is missing, a draft or published.
+        /// </summary>
+        /// <param name="tag">The tag.</param>
+        /// <returns>The state.</returns>
+        public GitHubReleaseState GetGitHubReleaseState(string tag)
+        {
+            var exitCode = this.StartProcess(
+                "gh",
+                new ProcessSettings { Arguments = GitHubRelease.View(tag), RedirectStandardOutput = true, RedirectStandardError = true },
+                out var output,
+                out var error);
+            return GitHubRelease.ParseViewResult(exitCode, output, error);
+        }
+
+        /// <summary>
+        /// Runs the GitHub CLI and throws on a non-zero exit code.
+        /// </summary>
+        /// <param name="arguments">The arguments.</param>
+        public void RunGitHubCli(ProcessArgumentBuilder arguments)
+        {
+            // StartProcess does not go through a shell, so paths are passed explicitly (no globs).
+            var exitCode = this.StartProcess("gh", new ProcessSettings { Arguments = arguments });
+            if (exitCode != 0)
+            {
+                throw new CakeException($"'gh {arguments.RenderSafe()}' failed (exit code {exitCode}).");
+            }
         }
     }
 }

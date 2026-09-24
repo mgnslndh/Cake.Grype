@@ -272,7 +272,11 @@ Unless explicitly decided otherwise:
 - Pull requests and pushes to `main` run `build --target All` (build, test, pack with package verification, dogfood scan) on Windows, Linux and macOS.
 - The tag push is the review point: there is no manual step between pushing a `v*` tag and the package appearing on nuget.org with a GitHub (pre)release, so review the changes and the notes' pull request titles before tagging. A preview that should not get a GitHub Release (internal or CI-only) must not be tagged.
 - Create and push the tag with `./release.ps1` (e.g. `./release.ps1 -Bump Minor`, `./release.ps1 -Bump Minor -Prerelease preview`, `./release.ps1 -Promote`). Run it without arguments to see the latest release and suggested next versions; it checks branch, working tree, CI status and tag uniqueness, and asks before tagging.
-- Pushing a tag `vX.Y.Z` (or `vX.Y.Z-preview.N`) runs `.github/workflows/release.yml`: the same `All` build in a job without write permissions, then — in a separate `publish` job that only receives the built package — `Publish` (pushes `artifacts/Cake.Grype.X.Y.Z.nupkg` to nuget.org — it refuses if the package version does not equal the tag) and `Release` (creates the GitHub Release with generated notes; tags containing `-` become prereleases).
+- Pushing a tag `vX.Y.Z` (or `vX.Y.Z-preview.N`) runs `.github/workflows/release.yml`: the same `All` build in a job without write permissions, then — in a separate `publish` job that only receives the built package — the `Release` target, which runs three steps in this order:
+  1. `Draft-Release` creates the GitHub Release as a **draft** (generated notes, package attached; invisible to users). It refuses if the package version does not equal the tag.
+  2. `Publish` pushes `artifacts/Cake.Grype.X.Y.Z.nupkg` to nuget.org — the only irreversible step.
+  3. `Release` publishes the draft (stable tags become latest; tags containing `-` become prereleases that are not latest).
+- If the release job fails, re-run it ("Re-run failed jobs"): every step is safe to repeat. An existing draft is reused and gets its package replaced, NuGet skips a version that is already there, and an already published Release is left alone. If the failure happened before `Publish`, you can instead delete the draft and the tag (`gh release delete vX.Y.Z --cleanup-tag`) and release again.
 
 ## Publishing Setup (one-time, repository owner)
 

@@ -83,8 +83,9 @@ All tasks operate on `Cake.Grype.sln` (or `src/Cake.Grype/Cake.Grype.csproj` for
 | `Dogfood` | `DotNetRun("src/Cake.Grype.Dogfooding.Build/…csproj")`, Release, `NoBuild`, `NoRestore` | Build |
 | `All` | – | Test, Pack, Dogfood |
 | `Default` | – | Build |
-| `Publish` | Resolves the release package from the tag (below), then `DotNetNuGetPush` it to `https://api.nuget.org/v3/index.json` with `NUGET_API_KEY`, `SkipDuplicate`; throws `CakeException` if the key is missing | – |
-| `Release` | `gh release create <GITHUB_REF_NAME> <release package path> --generate-notes` plus `--prerelease --latest=false` if the tag contains `-`, else `--verify-tag --fail-on-no-commits`; the package is passed as an explicit path (no shell expands globs for `StartProcess`) and a non-zero `gh` exit code throws | Publish |
+| `Draft-Release` | Resolves the release package from the tag (below); by `gh release view`: missing → `gh release create --draft --generate-notes --verify-tag` with the package (`--prerelease` for tags with `-`, else `--fail-on-no-commits`); draft → `gh release upload --clobber`; published → nothing | – |
+| `Publish` | `DotNetNuGetPush` the release package to `https://api.nuget.org/v3/index.json` with `NUGET_API_KEY`, `SkipDuplicate`; throws `CakeException` if the key is missing | Draft-Release |
+| `Release` | Publishes the draft: `gh release edit --draft=false` plus `--latest`, or `--prerelease --latest=false` for tags with `-`; already published → nothing. Draft-first ordering makes NuGet the only irreversible step and every step re-runnable (changed after the first design, which created the Release after the NuGet push). `gh` exit codes are checked; paths are passed explicitly | Publish |
 
 **Release package resolution (`Publish`, `Release`):** `GITHUB_REF_NAME` must be a tag `v<version>`, and `artifacts/Cake.Grype.<version>.nupkg` must exist; otherwise `CakeException` naming the tag and what `artifacts` contains. This guarantees the published package version equals the tag.
 
