@@ -16,7 +16,7 @@ Grype itself must be installed and on `PATH` (or set `ToolPath` in any settings 
 | macOS | `brew install grype` |
 | Linux / CI | `curl -sSfL https://get.anchore.io/grype \| sudo sh -s -- -b /usr/local/bin` |
 
-Tested with Grype 0.119.0.
+Tested with Grype 0.119.0. Use a recent Grype when scanning SBOMs from the CycloneDX .NET tool 6.x: they use CycloneDX spec 1.7, which older Grype versions (e.g. 0.110.0) reject with `unable to decode sbom: sbom format not recognized`. On GitHub Actions, `anchore/scan-action/download-grype` installs an older Grype by default; pin it with `grype-version`.
 
 ## Scan an SBOM
 
