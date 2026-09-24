@@ -30,13 +30,13 @@ jobs:
         run: dotnet run --project build/Build.csproj -- --target All
       - name: Upload dogfood report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: grype-dogfood-release
           path: artifacts/dogfood/
           if-no-files-found: ignore
       - name: Upload package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: package
           path: artifacts/*.nupkg
@@ -62,7 +62,7 @@ jobs:
         with:
           global-json-file: global.json
       - name: Download package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: package
           path: artifacts
