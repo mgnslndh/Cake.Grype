@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cake.Grype.Tests", "tests\Cake.Grype.Tests\Cake.Grype.Tests.csproj", "{C21454D8-08ED-4572-8D7D-21F62BDDE913}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cake.Grype.Dogfooding.Build", "src\Cake.Grype.Dogfooding.Build\Cake.Grype.Dogfooding.Build.csproj", "{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,18 @@ Global
 		{C21454D8-08ED-4572-8D7D-21F62BDDE913}.Release|x64.Build.0 = Release|Any CPU
 		{C21454D8-08ED-4572-8D7D-21F62BDDE913}.Release|x86.ActiveCfg = Release|Any CPU
 		{C21454D8-08ED-4572-8D7D-21F62BDDE913}.Release|x86.Build.0 = Release|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Debug|x64.Build.0 = Debug|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Debug|x86.Build.0 = Debug|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Release|x64.ActiveCfg = Release|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Release|x64.Build.0 = Release|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Release|x86.ActiveCfg = Release|Any CPU
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,5 +66,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{8CA74EA5-F4EA-4890-9EB8-B7CC8B0D92F1} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{C21454D8-08ED-4572-8D7D-21F62BDDE913} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{656D1CF7-57A2-47E3-AC77-59A46A8DDBD0} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal
