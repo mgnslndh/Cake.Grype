@@ -185,7 +185,8 @@ The build is a [Cake Frosting](https://cakebuild.net/docs/running-builds/runners
 | `Test` | Runs the unit tests |
 | `Pack` | Packs `artifacts/Cake.Grype.<version>.nupkg` and verifies its content |
 | `Dogfood` | Generates a CycloneDX SBOM of the solution with Cake.CycloneDX, scans it with this build of Cake.Grype, and fails on known-exploited or fixable High/Critical findings (report in `artifacts/dogfood/`) |
-| `All` | Test, Pack and Dogfood |
+| `Smoke` | Runs the packed add-in with the .NET Tool runner (`#addin`) and the Cake SDK runner (`#:package`) — scripts in `tests/Smoke` |
+| `All` | Test, Pack, Dogfood and Smoke |
 
 Prerequisites: the .NET 10 SDK plus the .NET 8 and .NET 9 runtimes (the tests run on all three), Grype on `PATH` (or `GRYPE_PATH` set to the executable) and the CycloneDX tool (`dotnet tool install -g CycloneDX --version 6.2.0`). Versions come from git tags via MinVer; see [docs/release-policy.md](docs/release-policy.md) for how releases are made.
 

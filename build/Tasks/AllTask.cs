@@ -6,6 +6,7 @@ namespace Build.Tasks
     [IsDependentOn(typeof(TestTask))]
     [IsDependentOn(typeof(PackTask))]
     [IsDependentOn(typeof(DogfoodTask))]
+    [IsDependentOn(typeof(SmokeTask))]
     public sealed class AllTask : FrostingTask
     {
     }

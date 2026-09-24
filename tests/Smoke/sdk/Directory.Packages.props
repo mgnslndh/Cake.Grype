@@ -1,0 +1,7 @@
+<!-- The smoke test runs inside this repository, whose root Directory.Packages.props enables Central Package Management.
+     The nearest Directory.Packages.props wins, so this one turns CPM off and lets cake.cs pin versions in #:package. -->
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+</Project>
