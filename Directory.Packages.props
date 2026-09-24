@@ -5,13 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageVersion Include="AssemblyMetadata.Generators" Version="2.1.0" />
+    <PackageVersion Include="AssemblyMetadata.Generators" Version="2.2.0" />
     <PackageVersion Include="Cake.Core" Version="6.0.0" />
     <PackageVersion Include="Cake.CycloneDX" Version="0.0.5" />
     <PackageVersion Include="Cake.Frosting" Version="6.3.0" />
     <PackageVersion Include="Cake.Testing" Version="6.0.0" />
-    <PackageVersion Include="MinVer" Version="7.0.0" />
-    <PackageVersion Include="NSubstitute" Version="5.3.0" />
+    <PackageVersion Include="MinVer" Version="8.0.0" />
+    <PackageVersion Include="NSubstitute" Version="6.2.0" />
     <PackageVersion Include="xunit.v3" Version="4.0.1" />
   </ItemGroup>
 
