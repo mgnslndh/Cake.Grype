@@ -170,6 +170,25 @@ Every settings class has Grype's global flags: `ConfigFiles` (`-c`), `Profiles` 
 
 `grype db list|providers|search|diff`, `grype config`, `grype explain` (needs stdin; a prototype feature), parsing SARIF/CycloneDX output, and piping Syft output into Grype.
 
+## Building
+
+The build is a [Cake Frosting](https://cakebuild.net/docs/running-builds/runners/cake-frosting) project in `build/`:
+
+```powershell
+./build.ps1 --target All      # Windows
+./build.sh --target All       # Linux/macOS
+```
+
+| Target | Does |
+|---|---|
+| `Default` / `Build` | Builds `Cake.Grype.sln` in Release |
+| `Test` | Runs the unit tests |
+| `Pack` | Packs `artifacts/Cake.Grype.<version>.nupkg` and verifies its content |
+| `Dogfood` | Generates a CycloneDX SBOM of the solution with Cake.CycloneDX, scans it with this build of Cake.Grype, and fails on known-exploited or fixable High/Critical findings (report in `artifacts/dogfood/`) |
+| `All` | Test, Pack and Dogfood |
+
+Prerequisites: the .NET 10 SDK, Grype on `PATH` (or `GRYPE_PATH` set to the executable) and the CycloneDX tool (`dotnet tool install -g CycloneDX --version 6.2.0`). Versions come from git tags via MinVer; see [docs/release-policy.md](docs/release-policy.md) for how releases are made.
+
 ## License
 
 MIT
