@@ -270,7 +270,8 @@ Unless explicitly decided otherwise:
 ## Automation In This Repository
 
 - Pull requests and pushes to `main` run `build --target All` (build, test, pack with package verification, dogfood scan) on Windows, Linux and macOS.
-- Pushing a tag `vX.Y.Z` (or `vX.Y.Z-preview.N`) runs `.github/workflows/release.yml`: the same `All` build, then `Publish` (pushes `artifacts/Cake.Grype.X.Y.Z.nupkg` to nuget.org — it refuses if the package version does not equal the tag) and `Release` (creates the GitHub Release with generated notes; tags containing `-` become prereleases).
+- The tag push is the review point: there is no manual step between pushing a `v*` tag and the package appearing on nuget.org with a GitHub (pre)release, so review the changes and the notes' pull request titles before tagging. A preview that should not get a GitHub Release (internal or CI-only) must not be tagged.
+- Pushing a tag `vX.Y.Z` (or `vX.Y.Z-preview.N`) runs `.github/workflows/release.yml`: the same `All` build in a job without write permissions, then — in a separate `publish` job that only receives the built package — `Publish` (pushes `artifacts/Cake.Grype.X.Y.Z.nupkg` to nuget.org — it refuses if the package version does not equal the tag) and `Release` (creates the GitHub Release with generated notes; tags containing `-` become prereleases).
 
 ## Publishing Setup (one-time, repository owner)
 
