@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Pull Request
+on: pull_request
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Install CycloneDX tool
+        run: dotnet tool install -g CycloneDX --version 6.2.0
+      - name: Install Grype
+        id: grype
+        uses: anchore/scan-action/download-grype@v7
+        with:
+          cache-db: true
+      - name: Build, test, pack and dogfood
+        env:
+          GRYPE_PATH: ${{ steps.grype.outputs.cmd }}
+        run: dotnet run --project build/Build.csproj -- --target All
+      - name: Upload dogfood report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grype-dogfood-${{ matrix.os }}
+          path: artifacts/dogfood/
+          if-no-files-found: ignore
