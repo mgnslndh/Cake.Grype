@@ -21,22 +21,12 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Install .NET SDK
-        uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: global.json
-      - name: Install CycloneDX tool
-        run: dotnet tool install -g CycloneDX --version 6.2.0
-      - name: Install Grype
-        id: grype
-        uses: anchore/scan-action/download-grype@v7
-        with:
-          # Pinned: the action's default Grype (v0.110.0) cannot read CycloneDX 1.7 SBOMs written by CycloneDX tool 6.x.
-          grype-version: v0.119.0
-          cache-db: true
+      - name: Set up .NET, CycloneDX and Grype
+        id: setup
+        uses: ./.github/actions/setup-build
       - name: Build, test, pack and dogfood
         env:
-          GRYPE_PATH: ${{ steps.grype.outputs.cmd }}
+          GRYPE_PATH: ${{ steps.setup.outputs.grype-path }}
         run: dotnet run --project build/Build.csproj -- --target All
       - name: Upload dogfood report
         if: always()

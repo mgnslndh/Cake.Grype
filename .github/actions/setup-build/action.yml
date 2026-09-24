@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+name: Set up build
+description: Installs the .NET SDK from global.json, the CycloneDX .NET tool and Grype. Tool versions are pinned here, once for all workflows.
+
+inputs:
+  cyclonedx-version:
+    description: Version of the CycloneDX .NET tool (dotnet tool install -g CycloneDX).
+    default: 6.2.0
+  grype-version:
+    # anchore/scan-action/download-grype installs v0.110.0 by default, which cannot read the CycloneDX 1.7 SBOMs
+    # written by the CycloneDX .NET tool 6.x ("sbom format not recognized").
+    description: Version of Grype to install.
+    default: v0.119.0
+
+outputs:
+  grype-path:
+    description: Absolute path to the Grype executable (pass it to the build as GRYPE_PATH).
+    value: ${{ steps.grype.outputs.cmd }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install .NET SDK
+      uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+    - name: Install CycloneDX tool
+      shell: bash
+      run: dotnet tool install -g CycloneDX --version ${{ inputs.cyclonedx-version }}
+    - name: Install Grype
+      id: grype
+      uses: anchore/scan-action/download-grype@v7
+      with:
+        grype-version: ${{ inputs.grype-version }}
+        cache-db: true
