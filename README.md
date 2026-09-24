@@ -1,12 +1,41 @@
 # Cake.Grype
 
+[![NuGet](https://img.shields.io/nuget/vpre/Cake.Grype.svg)](https://www.nuget.org/packages/Cake.Grype)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Cake.Grype.svg)](https://www.nuget.org/packages/Cake.Grype)
+[![CI](https://img.shields.io/github/actions/workflow/status/mgnslndh/Cake.Grype/main.yml?branch=main&label=CI)](https://github.com/mgnslndh/Cake.Grype/actions/workflows/main.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/mgnslndh/Cake.Grype/blob/main/LICENSE)
+
 A [Cake](https://cakebuild.net) add-in for [Grype](https://github.com/anchore/grype) by Anchore: scan SBOMs, directories and container images for known vulnerabilities, manage Grype's vulnerability database, and read Grype's JSON report to gate a build in C#.
+
+## Table of contents
+
+- [Installation](#installation)
+- [Scan an SBOM](#scan-an-sbom)
+- [Fail the build](#fail-the-build)
+- [Vulnerability database](#vulnerability-database)
+- [Global settings](#global-settings)
+- [Not supported (yet)](#not-supported-yet)
+- [Building](#building)
+- [License](#license)
 
 ## Installation
 
+Cake script (.NET Tool runner):
+
 ```csharp
-#addin nuget:?package=Cake.Grype
+#addin nuget:?package=Cake.Grype&version=0.1.0-preview.1&prerelease
 ```
+
+Cake SDK (file-based `dotnet cake.cs`):
+
+```csharp
+#:sdk Cake.Sdk@6.3.0
+#:package Cake.Grype@0.1.0-preview.1
+```
+
+Cake Frosting: add a package reference to `Cake.Grype`; the aliases are extension methods on the context (`context.GrypeScanSbom(...)`).
+
+Only prereleases are published so far, so the `&prerelease` flag and an explicit version are needed. All three runners are exercised by the build's `Smoke` and `Dogfood` targets.
 
 Grype itself must be installed and on `PATH` (or set `ToolPath` in any settings object):
 
