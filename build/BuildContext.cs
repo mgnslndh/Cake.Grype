@@ -31,6 +31,15 @@ namespace Build
 
         public string GitHubRefName => Environment.GetEnvironmentVariable("GITHUB_REF_NAME");
 
+        /// <summary>Gets the file the Release-Notes task writes the GitHub Release notes to.</summary>
+        public FilePath ReleaseNotesFile => ArtifactsDirectory.CombineWithFilePath("release-notes.md");
+
+        /// <summary>
+        /// Gets the tag being released, from GITHUB_REF_NAME.
+        /// </summary>
+        public string ReleaseTag => GitHubRefName
+            ?? throw new CakeException("GITHUB_REF_NAME environment variable is not set.");
+
         /// <summary>
         /// Gets the package matching the pushed tag: GITHUB_REF_NAME <c>v1.2.3</c> requires
         /// <c>artifacts/Cake.Grype.1.2.3.nupkg</c>. Guarantees the published version equals the tag.

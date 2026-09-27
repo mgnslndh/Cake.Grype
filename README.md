@@ -216,12 +216,13 @@ The build is a [Cake Frosting](https://cakebuild.net/docs/running-builds/runners
 | `Dogfood` | Generates a CycloneDX SBOM of the solution with Cake.CycloneDX, scans it with this build of Cake.Grype, and fails on known-exploited or fixable High/Critical findings (report in `artifacts/dogfood/`) |
 | `Smoke` | Runs the packed add-in with the .NET Tool runner (`#addin`) and the Cake SDK runner (`#:package`) — scripts in `tests/Smoke` |
 | `All` | Test, Pack, Dogfood and Smoke |
+| `Release-Notes` | Checks that `CHANGELOG.md` (and, for a stable tag, the README install snippets) is ready for the tag in `GITHUB_REF_NAME`, and writes the release notes to `artifacts/release-notes.md` |
 
 Prerequisites: the .NET 10 SDK plus the .NET 8 and .NET 9 runtimes (the tests run on all three), Grype on `PATH` (or `GRYPE_PATH` set to the executable) and the CycloneDX tool (`dotnet tool install -g CycloneDX --version 6.2.0`). Versions come from git tags via MinVer; see [docs/release-policy.md](docs/release-policy.md) for how releases are made.
 
 ### Releasing
 
-Releases are made by pushing a version tag; the Release workflow then builds, publishes to NuGet and creates the GitHub Release. `release.ps1` (PowerShell 7.2+, `git` and `gh`) does the tagging safely:
+Releases are made by pushing a version tag; the Release workflow then builds, publishes to NuGet and creates the GitHub Release with the tag's section of [CHANGELOG.md](https://github.com/mgnslndh/Cake.Grype/blob/main/CHANGELOG.md) as its notes. `release.ps1` (PowerShell 7.2+, `git`, `gh` and the .NET SDK) does the tagging safely:
 
 ```powershell
 ./release.ps1                                  # status and suggested next versions; changes nothing
@@ -232,7 +233,7 @@ Releases are made by pushing a version tag; the Release workflow then builds, pu
 ./release.ps1 1.3.0 -WhatIf                    # dry run with an explicit version
 ```
 
-It checks that you are on a clean, up-to-date `main` with a green CI run, shows what it will do and asks before creating and pushing the tag, then follows the Release workflow. See `Get-Help ./release.ps1 -Full`. The version logic is tested with Pester 5+: `Invoke-Pester ./tests/Release.Tests.ps1`.
+It checks that you are on a clean, up-to-date `main` with a green CI run and that `CHANGELOG.md` is ready for the tag, shows what it will do and asks before creating and pushing the tag, then follows the Release workflow. See `Get-Help ./release.ps1 -Full`. The version logic is tested with Pester 5+: `Invoke-Pester ./tests/Release.Tests.ps1`.
 
 ## License
 

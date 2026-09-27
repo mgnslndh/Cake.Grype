@@ -8,8 +8,9 @@ Without arguments, release.ps1 only shows the latest release, the state of your 
 It changes nothing.
 
 With a version, -Bump, -Prerelease or -Promote it:
-  1. checks that you are on an up-to-date, clean main whose CI run is green, and that the tag is new and higher
-     than the latest release;
+  1. checks that you are on an up-to-date, clean main whose CI run is green, that the tag is new and higher
+     than the latest release, and that CHANGELOG.md is ready for it (the same Release-Notes gate the Release
+     workflow runs first);
   2. shows a summary and asks for confirmation (use -WhatIf for a dry run, -Confirm:$false to skip the prompt);
   3. creates the annotated tag v<version> and pushes it;
   4. follows the Release workflow run and prints the NuGet and GitHub Release links (skip with -NoWait).
@@ -138,6 +139,26 @@ function Get-CiStatus([string] $Commit) {
     return [pscustomobject]@{ Ok = $run.conclusion -eq 'success'; Text = $run.conclusion; Url = $run.url }
 }
 
+function Get-ChangelogStatus([string] $Tag) {
+    # Runs the CHANGELOG.md release gate (the Release-Notes build target) for the tag, as the Release workflow will.
+    Write-Progress -Activity 'release.ps1' -Status "Checking CHANGELOG.md for $Tag"
+    $previous = $env:GITHUB_REF_NAME
+    try {
+        $env:GITHUB_REF_NAME = $Tag
+        $output = & dotnet run --project build/Build.csproj -- --target Release-Notes 2>&1
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        $env:GITHUB_REF_NAME = $previous
+        Write-Progress -Activity 'release.ps1' -Completed
+    }
+
+    if ($exitCode -eq 0) { return [pscustomobject]@{ Ok = $true; Text = "release notes for $Tag are ready" } }
+    $message = @($output | ForEach-Object { "$_" } | Where-Object { $_ -match '^Error: ' }) | Select-Object -First 1
+    $text = $null -ne $message ? $message.Substring('Error: '.Length) : "the Release-Notes target failed (exit code $exitCode)"
+    return [pscustomobject]@{ Ok = $false; Text = $text }
+}
+
 function Get-RepositoryState {
     Write-Progress -Activity 'release.ps1' -Status "Fetching $Remote/$Branch and tags"
     Invoke-Tool git @('fetch', '--quiet', '--tags', $Remote, $Branch) | Out-Null
@@ -161,6 +182,7 @@ function Get-RepositoryState {
         Latest        = $latest
         CommitsSince  = [int]@(Invoke-Tool git @('rev-list', '--count', $range))[0]
         Ci            = $ci
+        Changelog     = $null
     }
 }
 
@@ -176,6 +198,7 @@ function Get-Problems($State, $Next) {
     if (-not $State.Ci.Ok) {
         $problems.Add("CI on this commit is not green ($($State.Ci.Text)). $($State.Ci.Url) Use -SkipCiCheck to release anyway.")
     }
+    if ($null -ne $State.Changelog -and -not $State.Changelog.Ok) { $problems.Add($State.Changelog.Text) }
     if ($null -ne $Next) {
         if (Test-Tool git @('rev-parse', '--quiet', '--verify', "refs/tags/$($Next.Tag)")) { $problems.Add("Tag $($Next.Tag) already exists locally.") }
         if (@(Invoke-Tool git @('ls-remote', '--tags', $Remote, "refs/tags/$($Next.Tag)")).Count -gt 0) {
@@ -193,6 +216,7 @@ function Show-State($State, $Next) {
     Write-Line 'Commit' "$($State.Short)  $($State.Subject)"
     Write-Line 'Branch' (Format-Check ($State.Branch -eq $Branch -and $State.Head -eq $State.RemoteHead -and -not $State.Dirty) "$($State.Branch), $(if ($State.Head -eq $State.RemoteHead) { "up to date with $Remote/$Branch" } else { "differs from $Remote/$Branch" })$(if ($State.Dirty) { ', uncommitted changes' })")
     Write-Line 'CI on commit' (Format-Check $State.Ci.Ok $State.Ci.Text)
+    if ($null -ne $State.Changelog) { Write-Line 'CHANGELOG.md' (Format-Check $State.Changelog.Ok $State.Changelog.Text) }
     Write-Host ''
 }
 
@@ -290,6 +314,7 @@ try {
         'Promote' { $request.Promote = $true }
     }
     $next = Get-NextReleaseVersion -Latest $state.Latest @request
+    $state.Changelog = Get-ChangelogStatus $next.Tag
 
     Show-State $state $next
     $problems = @(Get-Problems $state $next)
