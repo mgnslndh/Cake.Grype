@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Cake.Core;
 using Cake.Core.Annotations;
 using Cake.Core.IO;
@@ -19,6 +20,9 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="path">The report file.</param>
         /// <returns>The report.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="FileNotFoundException">The report file does not exist.</exception>
+        /// <exception cref="CakeException">The report is not valid JSON.</exception>
         /// <example>
         /// <code>
         /// var report = GrypeReadJson("./artifacts/grype.json");

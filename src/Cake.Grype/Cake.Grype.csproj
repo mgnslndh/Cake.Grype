@@ -5,6 +5,8 @@
     <AssemblyName>Cake.Grype</AssemblyName>
     <RootNamespace>Cake.Grype</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Missing or broken XML docs fail every build, not only Release: the docs ship in the package. -->
+    <WarningsAsErrors>$(WarningsAsErrors);CS1570;CS1572;CS1573;CS1574;CS1584;CS1587;CS1591</WarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Label="Package">
