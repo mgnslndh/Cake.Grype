@@ -9,7 +9,7 @@ This repository publishes a NuGet package. This policy defines when to create Gi
 - Every stable NuGet package publish should have:
   - a matching Git tag
   - a matching GitHub Release
-  - generated or curated release notes
+  - release notes from `CHANGELOG.md`
 - Preview NuGet packages may have a GitHub prerelease when the preview is intended for external users and needs release notes or visibility.
 - Nightly, CI, internal, or temporary validation packages should normally not have a GitHub Release.
 
@@ -51,7 +51,7 @@ Minimum requirements for a stable release:
 2. The package has been built from the tagged commit.
 3. The tag matches the package version.
 4. A GitHub Release is published for the tag.
-5. Release notes are generated or reviewed before publishing.
+5. `CHANGELOG.md` has a reviewed `[X.Y.Z]` section, which becomes the release notes.
 
 ## Preview Releases
 
@@ -94,124 +94,28 @@ That means:
 
 ## Release Notes Policy
 
-GitHub-generated release notes are acceptable by default, provided the repository follows the conventions below.
+`CHANGELOG.md` is the source of truth for release notes. It follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/):
 
-Generated notes work best when:
+- Add user-visible changes to the `## [Unreleased]` section as they are merged, under `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed` or `Security`.
+- Leave out changes users can't see, such as CI, tests and internal build work.
+- Mark breaking changes with **Breaking:** and say how to update.
+- When releasing, rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD`, add a new empty `[Unreleased]` section and update the compare links at the bottom.
+- Use that version's section as the GitHub Release notes.
 
-- changes are merged through pull requests
-- pull requests have clear titles
-- pull requests are labeled consistently
-- tags are created consistently
+The release checks the CHANGELOG before it builds anything, and stops when it isn't ready for the tag:
 
-Release notes should describe user-visible change. If generated notes are incomplete or noisy, edit them before publishing.
+- A stable tag `vX.Y.Z` needs a `[X.Y.Z]` section that is the newest version in the file and isn't empty, and `[Unreleased]` must be empty. Entries left in `[Unreleased]` are part of the tagged commit but would be missing from the notes.
+- A prerelease tag `vX.Y.Z-preview.N` with its own `[X.Y.Z-preview.N]` section follows the same rules.
+- A prerelease tag without its own section uses the `[Unreleased]` section, which must not be empty, since a preview ships the changes gathered there so far. The tag must be newer than the newest version in the file, so a preview of an already released version is rejected.
+- A stable tag also needs the README's install snippets (`#addin …&version=X.Y.Z` and `#:package Cake.Grype@X.Y.Z`) to name `X.Y.Z`, because the README ships in the package as its nuget.org page. Prerelease tags skip this check, so during a preview the README can install either the preview or the latest stable version. Point it at the preview when it documents features only the preview has.
 
-## Required Conventions For Good Generated Notes
-
-To make `gh release create --generate-notes` produce useful output, follow these rules:
-
-1. Use consistent version tags.
-2. Merge most changes through pull requests instead of pushing directly to the main branch.
-3. Write pull request titles as changelog-ready summaries.
-4. Apply labels consistently.
-5. Exclude noise through `.github/release.yml` where needed.
-6. Use the correct previous tag range when generating notes.
+Release notes should describe user-visible change, not list commits or pull requests.
 
 ### Tag Rules
 
-- Use one consistent prefix, preferably `v`.
+- Use the prefix `v` for every release tag.
 - Do not alternate between formats such as `1.2.3` and `v1.2.3`.
 - Do not reuse tags.
-
-### Pull Request Title Rules
-
-Preferred style:
-
-- `Add retry support for package downloads`
-- `Fix null handling in metadata parser`
-- `Improve diagnostics for restore failures`
-
-Avoid:
-
-- `misc fixes`
-- `updates`
-- `stuff`
-
-### Label Rules
-
-Recommended labels:
-
-- `breaking-change`
-- `feature`
-- `enhancement`
-- `bug`
-- `fix`
-- `documentation`
-- `chore`
-- `ignore-for-release`
-
-These labels can be mapped into release note sections through `.github/release.yml`.
-
-## GitHub Release Configuration
-
-[.github/release.yml](../.github/release.yml) groups pull requests into sections and excludes noise:
-
-Example:
-
-```yaml
-changelog:
-  exclude:
-    labels:
-      - ignore-for-release
-      - chore
-      - documentation
-    authors:
-      - dependabot
-  categories:
-    - title: Breaking Changes
-      labels:
-        - breaking-change
-    - title: Features
-      labels:
-        - feature
-        - enhancement
-    - title: Fixes
-      labels:
-        - bug
-        - fix
-    - title: Other Changes
-      labels:
-        - "*"
-```
-
-## GitHub CLI Usage
-
-### Stable Release
-
-```bash
-gh release create v1.2.3 --generate-notes --verify-tag --fail-on-no-commits
-```
-
-### Preview Release
-
-```bash
-gh release create v1.3.0-preview.1 --generate-notes --prerelease --latest=false
-```
-
-### Force Correct Comparison Range
-
-Use this when GitHub would otherwise compare against the wrong previous tag:
-
-```bash
-gh release create v1.2.3 --generate-notes --notes-start-tag v1.2.2
-```
-
-### Use Tag Annotation Instead Of Generated Notes
-
-If you maintain curated annotated tags:
-
-```bash
-gh release create v1.2.3 --notes-from-tag --verify-tag
-```
 
 ## Recommended Workflow
 
@@ -219,17 +123,14 @@ gh release create v1.2.3 --notes-from-tag --verify-tag
 
 1. Finalize version.
 2. Merge release-ready changes.
-3. Create tag `vX.Y.Z`.
-4. Build and publish package `X.Y.Z`.
-5. Create GitHub Release for the tag.
-6. Review generated notes before publishing.
+3. In `CHANGELOG.md`, rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD`, add a new empty `[Unreleased]` section and update the compare links. In `README.md`, update the install snippets to `X.Y.Z` and the supported Cake versions if they changed. Merge that change.
+4. Run `./release.ps1 X.Y.Z` (or `-Bump`/`-Promote`) on that commit. It creates and pushes the tag; the Release workflow builds, publishes the package and creates the GitHub Release with the CHANGELOG section as notes.
 
 ### Preview
 
 1. Choose preview version such as `X.Y.Z-preview.N`.
-2. Create matching tag.
-3. Publish preview package.
-4. If externally relevant, create a GitHub prerelease.
+2. Check that `[Unreleased]` in `CHANGELOG.md` describes the preview (or add a `[X.Y.Z-preview.N]` section).
+3. Run `./release.ps1 -Bump Minor -Prerelease preview` (or `-Prerelease preview` for the next preview in a series). It creates and pushes the tag; the Release workflow publishes the package and a GitHub prerelease.
 
 ## Decision Rules
 
@@ -269,11 +170,11 @@ Unless explicitly decided otherwise:
 
 ## Automation In This Repository
 
-- Pull requests and pushes to `main` run `build --target All` (build, test, pack with package verification, dogfood scan) on Windows, Linux and macOS.
-- The tag push is the review point: there is no manual step between pushing a `v*` tag and the package appearing on nuget.org with a GitHub (pre)release, so review the changes and the notes' pull request titles before tagging. A preview that should not get a GitHub Release (internal or CI-only) must not be tagged.
-- Create and push the tag with `./release.ps1` (e.g. `./release.ps1 -Bump Minor`, `./release.ps1 -Bump Minor -Prerelease preview`, `./release.ps1 -Promote`). Run it without arguments to see the latest release and suggested next versions; it checks branch, working tree, CI status and tag uniqueness, and asks before tagging.
-- Pushing a tag `vX.Y.Z` (or `vX.Y.Z-preview.N`) runs `.github/workflows/release.yml`: the same `All` build in a job without write permissions, then — in a separate `publish` job that only receives the built package — the `Release` target, which runs three steps in this order:
-  1. `Draft-Release` creates the GitHub Release as a **draft** (generated notes, package attached; invisible to users). It refuses if the package version does not equal the tag.
+- Pull requests and pushes to `main` run `build --target All` (build, test, pack with package verification, dogfood scan, and smoke tests of the packed add-in on the Cake .NET Tool and Cake.Sdk) on Windows, Linux and macOS.
+- The tag push is the review point: there is no manual step between pushing a `v*` tag and the package appearing on nuget.org with a GitHub (pre)release, so review the changes and the notes before tagging. A preview that should not get a GitHub Release (internal or CI-only) must not be tagged.
+- Create and push the tag with `./release.ps1` (PowerShell 7.2+, `git`, `gh` and the .NET SDK), e.g. `./release.ps1 -Bump Minor`, `./release.ps1 -Bump Minor -Prerelease preview` or `./release.ps1 -Promote`. Run it without arguments to see the latest release and suggested next versions; it changes nothing. With a version it checks the branch, working tree, CI status, tag uniqueness and the CHANGELOG gate (see Release Notes Policy), shows a summary and asks before tagging, then follows the Release workflow. Use `-WhatIf` for a dry run. Its version logic in `build/Release.psm1` is tested with Pester 5+: `Invoke-Pester ./tests/Release.Tests.ps1`.
+- Pushing a tag `vX.Y.Z` (or `vX.Y.Z-preview.N`) runs `.github/workflows/release.yml`: `Release-Notes` checks that `CHANGELOG.md` has notes for the tag (and, for a stable tag, that the README installs that version), then the same `All` build runs, all in a job without write permissions, then — in a separate `publish` job that only receives the built package — the `Release` target, which runs three steps in this order:
+  1. `Draft-Release` creates the GitHub Release as a **draft** (CHANGELOG notes, package attached; invisible to users). It refuses if there is no package whose version equals the tag.
   2. `Publish` pushes `artifacts/Cake.Grype.X.Y.Z.nupkg` to nuget.org — the only irreversible step.
   3. `Release` publishes the draft (stable tags become latest; tags containing `-` become prereleases that are not latest).
 - If the release job fails, re-run it ("Re-run failed jobs"): every step is safe to repeat. An existing draft is reused and gets its package replaced, NuGet skips a version that is already there, and an already published Release is left alone. If the failure happened before `Publish`, you can instead delete the draft and the tag (`gh release delete vX.Y.Z --cleanup-tag`) and release again.
@@ -283,4 +184,3 @@ Unless explicitly decided otherwise:
 1. Create the GitHub environment `Production` in `mgnslndh/Cake.Grype`.
 2. Add the secret `NUGET_USER` (the nuget.org account name) to that environment.
 3. On nuget.org, add a Trusted Publishing policy for `Cake.Grype`: owner `mgnslndh`, repository `Cake.Grype`, workflow file `release.yml`, environment `Production`.
-4. Optionally create the labels used by `.github/release.yml` (`breaking-change`, `feature`, `enhancement`, `bug`, `fix`, `documentation`, `chore`, `ignore-for-release`).

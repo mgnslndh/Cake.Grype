@@ -17,6 +17,10 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <returns>The version information.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, it exited with a non-zero exit code, or its output is not valid JSON.
+        /// </exception>
         /// <example>
         /// <code>
         /// var version = GrypeVersion();
@@ -37,6 +41,16 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="settings">The settings.</param>
         /// <returns>The version information.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, it exited with a non-zero exit code, or its output is not valid JSON.
+        /// </exception>
+        /// <example>
+        /// <code>
+        /// var version = GrypeVersion(new GrypeVersionSettings { ToolPath = "./tools/grype/grype.exe" });
+        /// Information("Grype {0}", version.Version);
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]

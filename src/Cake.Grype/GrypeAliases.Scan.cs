@@ -14,6 +14,8 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="source">The source to scan.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="source"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
         /// <example>
         /// <code>
         /// GrypeScan(GrypeSource.Sbom("./artifacts/bom.cdx.json"));
@@ -35,6 +37,15 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="source">The source to scan.</param>
         /// <param name="settings">The settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="source"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">
+        /// <see cref="GrypeScanSettings.FailOn"/> is <see cref="GrypeSeverity.Unknown"/>, or <see cref="GrypeScanSettings.FailOn"/>,
+        /// <see cref="GrypeScanSettings.SortBy"/> or <see cref="GrypeScanSettings.Scope"/> is not a defined value.
+        /// </exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, or it exited with a non-zero exit code, for example because a vulnerability at or
+        /// above <see cref="GrypeScanSettings.FailOn"/> was found.
+        /// </exception>
         /// <example>
         /// <code>
         /// var settings = new GrypeScanSettings
@@ -65,6 +76,8 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="sbom">The SBOM file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="sbom"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
         /// <example>
         /// <code>
         /// GrypeScanSbom("./artifacts/bom.cdx.json");
@@ -85,6 +98,15 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="sbom">The SBOM file.</param>
         /// <param name="settings">The settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="sbom"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">
+        /// <see cref="GrypeScanSettings.FailOn"/> is <see cref="GrypeSeverity.Unknown"/>, or <see cref="GrypeScanSettings.FailOn"/>,
+        /// <see cref="GrypeScanSettings.SortBy"/> or <see cref="GrypeScanSettings.Scope"/> is not a defined value.
+        /// </exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, or it exited with a non-zero exit code, for example because a vulnerability at or
+        /// above <see cref="GrypeScanSettings.FailOn"/> was found.
+        /// </exception>
         /// <example>
         /// <code>
         /// GrypeScanSbom("./artifacts/bom.cdx.json", new GrypeScanSettings
@@ -108,6 +130,13 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="directory">The directory.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="directory"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
+        /// <example>
+        /// <code>
+        /// GrypeScanDirectory("./src");
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -123,6 +152,24 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="directory">The directory.</param>
         /// <param name="settings">The settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="directory"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">
+        /// <see cref="GrypeScanSettings.FailOn"/> is <see cref="GrypeSeverity.Unknown"/>, or <see cref="GrypeScanSettings.FailOn"/>,
+        /// <see cref="GrypeScanSettings.SortBy"/> or <see cref="GrypeScanSettings.Scope"/> is not a defined value.
+        /// </exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, or it exited with a non-zero exit code, for example because a vulnerability at or
+        /// above <see cref="GrypeScanSettings.FailOn"/> was found.
+        /// </exception>
+        /// <example>
+        /// <code>
+        /// GrypeScanDirectory("./src", new GrypeScanSettings
+        /// {
+        ///     Exclude = { "./**/bin/**", "./**/obj/**" },
+        ///     FailOn = GrypeSeverity.High,
+        /// });
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -137,6 +184,13 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="file">The file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="file"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
+        /// <example>
+        /// <code>
+        /// GrypeScanFile("./bin/app.jar");
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -152,6 +206,24 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="file">The file.</param>
         /// <param name="settings">The settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="file"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">
+        /// <see cref="GrypeScanSettings.FailOn"/> is <see cref="GrypeSeverity.Unknown"/>, or <see cref="GrypeScanSettings.FailOn"/>,
+        /// <see cref="GrypeScanSettings.SortBy"/> or <see cref="GrypeScanSettings.Scope"/> is not a defined value.
+        /// </exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, or it exited with a non-zero exit code, for example because a vulnerability at or
+        /// above <see cref="GrypeScanSettings.FailOn"/> was found.
+        /// </exception>
+        /// <example>
+        /// <code>
+        /// GrypeScanFile("./bin/app.jar", new GrypeScanSettings
+        /// {
+        ///     Outputs = { GrypeOutput.Sarif("./artifacts/grype.sarif") },
+        ///     OnlyFixed = true,
+        /// });
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -166,6 +238,14 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="image">The image reference, for example <c>myorg/api:1.2.3</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="image"/> is <c>null</c>, empty or whitespace.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
+        /// <example>
+        /// <code>
+        /// GrypeScanImage("myorg/api:1.2.3");
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -181,6 +261,25 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="image">The image reference, for example <c>myorg/api:1.2.3</c>.</param>
         /// <param name="settings">The settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="image"/> is <c>null</c>, empty or whitespace; <see cref="GrypeScanSettings.FailOn"/> is
+        /// <see cref="GrypeSeverity.Unknown"/>; or <see cref="GrypeScanSettings.FailOn"/>, <see cref="GrypeScanSettings.SortBy"/>
+        /// or <see cref="GrypeScanSettings.Scope"/> is not a defined value.
+        /// </exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, or it exited with a non-zero exit code, for example because a vulnerability at or
+        /// above <see cref="GrypeScanSettings.FailOn"/> was found.
+        /// </exception>
+        /// <example>
+        /// <code>
+        /// GrypeScanImage("myorg/api:1.2.3", new GrypeScanSettings
+        /// {
+        ///     Scope = GrypeScope.AllLayers,
+        ///     Platform = "linux/arm64",
+        /// });
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -195,6 +294,14 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="image">The image reference, for example <c>myorg/api:1.2.3</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="image"/> is <c>null</c>, empty or whitespace.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
+        /// <example>
+        /// <code>
+        /// GrypeScanRegistry("myorg/api:1.2.3");
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -210,6 +317,25 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="image">The image reference, for example <c>myorg/api:1.2.3</c>.</param>
         /// <param name="settings">The settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="image"/> is <c>null</c>, empty or whitespace; <see cref="GrypeScanSettings.FailOn"/> is
+        /// <see cref="GrypeSeverity.Unknown"/>; or <see cref="GrypeScanSettings.FailOn"/>, <see cref="GrypeScanSettings.SortBy"/>
+        /// or <see cref="GrypeScanSettings.Scope"/> is not a defined value.
+        /// </exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, or it exited with a non-zero exit code, for example because a vulnerability at or
+        /// above <see cref="GrypeScanSettings.FailOn"/> was found.
+        /// </exception>
+        /// <example>
+        /// <code>
+        /// GrypeScanRegistry("myorg/api:1.2.3", new GrypeScanSettings
+        /// {
+        ///     Outputs = { GrypeOutput.Table(), GrypeOutput.Json("./artifacts/grype-image.json") },
+        ///     FailOn = GrypeSeverity.Critical,
+        /// });
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]

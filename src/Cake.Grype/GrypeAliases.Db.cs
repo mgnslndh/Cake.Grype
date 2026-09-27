@@ -12,6 +12,8 @@ namespace Cake.Grype
         /// Downloads and installs the latest Grype vulnerability database.
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
         /// <example>
         /// <code>
         /// GrypeDbUpdate();
@@ -31,6 +33,16 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="settings">The settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
+        /// <example>
+        /// <code>
+        /// GrypeDbUpdate(new GrypeDbUpdateSettings
+        /// {
+        ///     EnvironmentVariables = { ["GRYPE_DB_CACHE_DIR"] = MakeAbsolute(Directory("./.cache/grype")).FullPath },
+        /// });
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -48,6 +60,8 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="archive">The archive, for example downloaded from <c>https://grype.anchore.io/databases</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="archive"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
         /// <example>
         /// <code>
         /// GrypeDbImport("./cache/vulnerability-db.tar.zst");
@@ -68,6 +82,16 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="archive">The archive.</param>
         /// <param name="settings">The settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="archive"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
+        /// <example>
+        /// <code>
+        /// GrypeDbImport("./cache/vulnerability-db.tar.zst", new GrypeDbImportSettings
+        /// {
+        ///     Verbosity = GrypeVerbosity.Info,
+        /// });
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -86,6 +110,14 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="url">The absolute archive URL.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="url"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="url"/> is not absolute.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
+        /// <example>
+        /// <code>
+        /// GrypeDbImport(new Uri("https://grype.anchore.io/databases/...?checksum=sha256:..."));
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -101,6 +133,17 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="url">The absolute archive URL.</param>
         /// <param name="settings">The settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> or <paramref name="url"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="url"/> is not absolute.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
+        /// <example>
+        /// <code>
+        /// GrypeDbImport(new Uri("https://grype.anchore.io/databases/...?checksum=sha256:..."), new GrypeDbImportSettings
+        /// {
+        ///     EnvironmentVariables = { ["GRYPE_DB_CACHE_DIR"] = MakeAbsolute(Directory("./.cache/grype")).FullPath },
+        /// });
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -117,6 +160,13 @@ namespace Cake.Grype
         /// Deletes the local Grype vulnerability database, for example to start a test from a clean cache.
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
+        /// <example>
+        /// <code>
+        /// GrypeDbDelete();
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -131,6 +181,16 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="settings">The settings.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">Grype could not be found, or it exited with a non-zero exit code.</exception>
+        /// <example>
+        /// <code>
+        /// GrypeDbDelete(new GrypeDbDeleteSettings
+        /// {
+        ///     EnvironmentVariables = { ["GRYPE_DB_CACHE_DIR"] = MakeAbsolute(Directory("./.cache/grype")).FullPath },
+        /// });
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -149,6 +209,11 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <returns>The status.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, it failed for another reason than a missing or invalid database, or its output is
+        /// not valid JSON.
+        /// </exception>
         /// <example>
         /// <code>
         /// var status = GrypeDbStatus();
@@ -173,6 +238,20 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="settings">The settings.</param>
         /// <returns>The status.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, it failed for another reason than a missing or invalid database, or its output is
+        /// not valid JSON.
+        /// </exception>
+        /// <example>
+        /// <code>
+        /// var status = GrypeDbStatus(new GrypeDbStatusSettings
+        /// {
+        ///     EnvironmentVariables = { ["GRYPE_DB_CACHE_DIR"] = MakeAbsolute(Directory("./.cache/grype")).FullPath },
+        /// });
+        /// Information("Grype DB built {0}, schema {1}", status.Built, status.SchemaVersion);
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
@@ -190,6 +269,11 @@ namespace Cake.Grype
         /// </summary>
         /// <param name="context">The context.</param>
         /// <returns>The result.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, it exited with a non-zero exit code other than the one for an available update, or
+        /// its output is not valid JSON.
+        /// </exception>
         /// <example>
         /// <code>
         /// if (GrypeDbCheck().UpdateAvailable)
@@ -213,6 +297,23 @@ namespace Cake.Grype
         /// <param name="context">The context.</param>
         /// <param name="settings">The settings.</param>
         /// <returns>The result.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="CakeException">
+        /// Grype could not be found, it exited with a non-zero exit code other than the one for an available update, or
+        /// its output is not valid JSON.
+        /// </exception>
+        /// <example>
+        /// <code>
+        /// var check = GrypeDbCheck(new GrypeDbCheckSettings
+        /// {
+        ///     EnvironmentVariables = { ["GRYPE_DB_CACHE_DIR"] = MakeAbsolute(Directory("./.cache/grype")).FullPath },
+        /// });
+        /// if (check.UpdateAvailable)
+        /// {
+        ///     Information("A newer Grype database is available: {0}", check.Candidate?.Built);
+        /// }
+        /// </code>
+        /// </example>
         [CakeMethodAlias]
         [CakeAliasCategory("Grype")]
         [CakeNamespaceImport("Cake.Grype")]
